@@ -69,10 +69,6 @@ RUN export PORTER_MIRROR=${PORTER_MIRROR} \
 
 ENV PATH ${PORTER_HOME}:$PATH
 
-# Install requirements
-COPY ["e2e_tests/requirements.txt", "/tmp/pip-tmp/e2e_tests_requirements.txt"]
-RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/e2e_tests_requirements.txt && rm -rf /tmp/pip-tmp
-
 # Install azure-cli
 ARG AZURE_CLI_VERSION=2.36.0-1~buster
 COPY .devcontainer/scripts/azure-cli.sh /tmp/
