@@ -1,0 +1,54 @@
+---
+name: Build Validation
+
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+    branches: [main]
+
+# for each ref (branch/pr) run just the most recent,
+# cancel other pending/running ones
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref }}"
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          # Full git history is needed to get a proper list of
+          # changed files within `super-linter`
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Terraform format check
+        run: terraform fmt -check -recursive
+
+      # find all terraform folders and run validate to catch
+      # configuration errors
+      - name: Terraform validation
+        run: |
+          find . -type d -name 'terraform' -not -path '*cnab*' -print0 \
+          | xargs -0 -I{} sh -c 'echo "***** Validating: {} *****"; \
+          terraform -chdir={} init -backend=false; terraform -chdir={} validate'
+
+      - name: Lint code base
+        # the slim image is 2GB smaller and we don't use the extra stuff
+        # Moved this after the Terraform checks above due something similar to this issue:
+        # https://github.com/github/super-linter/issues/2433
+        uses: github/super-linter/slim@v4.9.4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_MARKDOWN: true
+          VALIDATE_PYTHON_FLAKE8: true
+          VALIDATE_YAML: true
+          VALIDATE_TERRAFORM_TFLINT: true
+          VALIDATE_BASH: true
+          VALIDATE_BASH_EXEC: true
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_DOCKERFILE_HADOLINT: true
