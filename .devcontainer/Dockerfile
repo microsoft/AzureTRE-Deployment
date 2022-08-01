@@ -70,7 +70,7 @@ RUN export PORTER_MIRROR=${PORTER_MIRROR} \
 ENV PATH ${PORTER_HOME}:$PATH
 
 # Install azure-cli
-ARG AZURE_CLI_VERSION=2.36.0-1~buster
+ARG AZURE_CLI_VERSION=2.37.0-1~buster
 COPY .devcontainer/scripts/azure-cli.sh /tmp/
 RUN export AZURE_CLI_VERSION=${AZURE_CLI_VERSION} \
     && /tmp/azure-cli.sh
