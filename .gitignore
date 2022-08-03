@@ -10,6 +10,7 @@ ENV/
 env.bak/
 venv.bak/
 private.env
+/devops/auth.env
 
 # CNAB
 .cnab/
