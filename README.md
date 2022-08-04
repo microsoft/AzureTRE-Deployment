@@ -31,13 +31,15 @@ To work with devcontainers you will need:
 
 ## Upgrading AzureTRE version
 
+As part of the devcontainer definition a specific version of AzureTRE is downloaded. The AzureTRE is then available to reference in the devconatiner but any changes to it are gitignored.
+
 To upgrade AzureTRE version go to [devcontainer.json](.devcontainer/devcontainer.json) and update the `OSS_VERSION` param to the desired version.
 
 ### Congiguration Setup
 
-Before setting up the configuration files make sure to follow the [AzureTRE predeployment steps](https://microsoft.github.io/AzureTRE/tre-admins/setup-instructions/pre-deployment-steps/) to setup and understand the required configuration.
+The configuration files are required for the AzureTRE local deployment. Before setting up the configuration files make sure to follow the [AzureTRE predeployment steps](https://microsoft.github.io/AzureTRE/tre-admins/setup-instructions/pre-deployment-steps/) to setup and understand the required configuration.
 
-To deploy AzureTRE in this repository there are 3 configuration files:
+ In this repository there are 3 configuration files:
 
 - [auth.env](/devops/auth.env.sample) - containes the required authentication setup.
 - [/devops/.env](/devops/.env.sample) - contains deployment related configuration such as management infrastructure and azure credentials.
