@@ -5,7 +5,7 @@ This repository is an initial template to help get you started with AzureTRE dep
 In this project you will find:
 
 - Github Actions implementing AzureTRE automation, including running deployments to Azure
-- Scripts and configuration specific to deployment
+- Configuration specific to deployment
 - Workspace template definitions
 - User resource template definitions
 - Devcontainer setup
