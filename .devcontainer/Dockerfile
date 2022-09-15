@@ -92,6 +92,7 @@ RUN if [ "${INTERACTIVE}" = "true" ]; then /tmp/gh.sh; fi
 ARG OSS_VERSION
 ENV AZURETRE_HOME=/home/$USERNAME/AzureTRE
 COPY .devcontainer/scripts/install-azure-tre-oss.sh .devcontainer/devcontainer.json /tmp/
+# hadolint ignore=DL3004
 RUN oss_version_in_json=$(grep -oP '(?<="OSS_VERSION": ")[^"]*' /tmp/devcontainer.json) \
     && /tmp/install-azure-tre-oss.sh "${OSS_VERSION:-$oss_version_in_json}" "${AZURETRE_HOME}" \
     && sudo chown -R $USERNAME ${AZURETRE_HOME}
