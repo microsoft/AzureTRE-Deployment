@@ -12,9 +12,7 @@ In this project you will find:
 
 ## Project structure and overview
 
-//TODO: Add link here once the pr on the main repo is merged
-
-Go to [AzureTRE Deployment documentation]() to learn more about this project structure, how it works and how to work with it.
+Go to [AzureTRE Deployment documentation](https://microsoft.github.io/AzureTRE/using-tre/) to learn more about this project structure, how it works and how to work with it.
 
 ## Local development
 
