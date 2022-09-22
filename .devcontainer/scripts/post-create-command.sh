@@ -6,8 +6,8 @@ set -o nounset
 # set -o xtrace
 
 #Copy sample env files
-find AzureTRE/devops/ -name \*.env.sample -exec cp {} devops/ \;
-find AzureTRE/templates/core/ -name \*.env.sample -exec cp {} templates/core/ \;
+find ~/AzureTRE/devops/ -name \*.env.sample -exec cp {} devops/ \;
+find ~/AzureTRE/templates/core/ -name \*.env.sample -exec cp {} templates/core/ \;
 
 # show the AzureTRE OSS folder inside the workspace one
 rm -fr AzureTRE || true
