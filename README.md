@@ -10,9 +10,9 @@ In this project you will find:
 - User resource template definitions
 - Devcontainer setup
 
-## Project structure and overview
+## Using this repo and AzureTRE
 
-Go to [AzureTRE Deployment documentation](https://microsoft.github.io/AzureTRE/using-tre/) to learn more about this project structure, how it works and how to work with it.
+This project is intended to assist the deployment of the Azure TRE project in real world environments. This includes deploying using GitHub Actions, and publishing custom templates. See [Azure TRE docs](https://microsoft.github.io/AzureTRE/) to learn how to get started with Azure TRE, how to deploy it in your environment using this repo and more.
 
 ## Local development
 
