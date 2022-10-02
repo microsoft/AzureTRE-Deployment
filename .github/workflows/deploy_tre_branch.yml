@@ -73,7 +73,7 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       CORE_ADDRESS_SPACE: ${{ secrets.CORE_ADDRESS_SPACE }}
       LOCATION: ${{ secrets.LOCATION }}
-      MGMT_RESOURCE_GROUP: ${{ format('rg-tre{0}-mgmt', needs.prepare-not-main.outputs.refid) }}
+      MGMT_RESOURCE_GROUP_NAME: ${{ format('rg-tre{0}-mgmt', needs.prepare-not-main.outputs.refid) }}
       MS_TEAMS_WEBHOOK_URI: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
       STATE_STORAGE_ACCOUNT_NAME: ${{ format('tre{0}mgmt', needs.prepare-not-main.outputs.refid) }}
       SWAGGER_UI_CLIENT_ID: ${{ secrets.SWAGGER_UI_CLIENT_ID }}
