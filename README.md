@@ -1,6 +1,8 @@
 # AzureTRE-Deployment Repo
 
-This repository is an initial template to help get you started with AzureTRE deployment, setting up Github CI/CD workflows and extending AzureTRE with your custom templates.
+This project is intended to assist the deployment of the Azure TRE project in real world environments. This includes deploying using GitHub Actions, and publishing custom templates. See [Azure TRE docs](https://microsoft.github.io/AzureTRE/) to learn how to get started with Azure TRE, how to deploy it in your environment using this repo and more.
+
+## Contents
 
 In this project you will find:
 
@@ -9,12 +11,6 @@ In this project you will find:
 - Workspace template definitions
 - User resource template definitions
 - Devcontainer setup
-
-## Project structure and overview
-
-//TODO: Add link here once the pr on the main repo is merged
-
-Go to [AzureTRE Deployment documentation]() to learn more about this project structure, how it works and how to work with it.
 
 ## Local development
 
@@ -35,17 +31,17 @@ As part of the devcontainer definition a specific version of AzureTRE is downloa
 
 To upgrade AzureTRE version go to [devcontainer.json](.devcontainer/devcontainer.json) and update the `OSS_VERSION` param to the desired version.
 
-### Congiguration Setup
+### Configuration Setup
 
-The configuration files are required for the AzureTRE local deployment. Before setting up the configuration files make sure to follow the [AzureTRE predeployment steps](https://microsoft.github.io/AzureTRE/tre-admins/setup-instructions/pre-deployment-steps/) to setup and understand the required configuration.
+The configuration files are required for the AzureTRE local deployment. Before setting up the configuration files make sure to follow the [AzureTRE pre-deployment steps](https://microsoft.github.io/AzureTRE/tre-admins/setup-instructions/pre-deployment-steps/) to setup and understand the required configuration.
 
  In this repository there are 3 configuration files:
 
-- [auth.env](/devops/auth.env.sample) - containes the required authentication setup.
+- [auth.env](/devops/auth.env.sample) - Created during bash `make auth` and contains the required authentication setup.
 - [/devops/.env](/devops/.env.sample) - contains deployment related configuration such as management infrastructure and azure credentials.
-- [/templates/core/.env](/devops/.env.sample) - containes TRE setup config.
+- [/templates/core/.env](/devops/.env.sample) - contains TRE setup config.
 
-Copy the sample env file and rename it without the sample suffix (For example: auth.env.sample -> auth.env).Then fill in the required configuration.
+Copy the sample env files, renaming them without the sample suffix (For example: .env.sample -> .env).Then fill in the required environment configurations.
 
 ## Contributing
 
