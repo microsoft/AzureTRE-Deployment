@@ -218,4 +218,6 @@ runs:
           -e TF_VAR_enable_airlock_malware_scanning=${{ inputs.TF_VAR_enable_airlock_malware_scanning }} \
           -e CI_CACHE_ACR_NAME="${{ inputs.CI_CACHE_ACR_NAME }}" \
           '${{ inputs.ACTIONS_ACR_URI }}tredev:${{ inputs.ACTIONS_DEVCONTAINER_TAG }}' \
-        bash -c "${{ inputs.COMMAND }}"
+        bash -c "(cd cli/ && make install-cli) && ${{ inputs.COMMAND }}"
+        # Above command installs tre CLI (done via postCreateCommand in VS Code)
+        # If we switch to https://github.com/devcontainers/ci this would no longer be needed
