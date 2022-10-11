@@ -11,8 +11,7 @@
       // 		export DOCKER_GROUP_ID=$(getent group docker | awk -F ":" '{ print $3 }')
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
-      // TODO: replace with v0.5.0 when available
-      "OSS_VERSION": "349c42469f6896826db38f97afaae208b984a96a"
+      "OSS_VERSION": "v0.5.0"
     }
   },
   "runArgs": [
