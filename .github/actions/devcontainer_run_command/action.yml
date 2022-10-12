@@ -163,6 +163,6 @@ runs:
           -e TF_VAR_enable_airlock_malware_scanning=${{ inputs.ENABLE_AIRLOCK_MALWARE_SCANNING }} \
           -e CI_CACHE_ACR_NAME="${{ inputs.CI_CACHE_ACR_NAME }}" \
           '${{ inputs.CI_CACHE_ACR_NAME }}.azurecr.io/tredev:${{ inputs.DEVCONTAINER_TAG }}' \
-        bash -c "(cd  /home/vscode/cli/ && make install-cli) && ${{ inputs.COMMAND }}"
+        bash -c "(cd  /home/vscode/AzureTRE/cli/ && make install-cli) && ${{ inputs.COMMAND }}"
         # Above command installs tre CLI (done via postCreateCommand in VS Code)
         # If we switch to https://github.com/devcontainers/ci this would no longer be needed
