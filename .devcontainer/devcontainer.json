@@ -11,7 +11,8 @@
       // 		export DOCKER_GROUP_ID=$(getent group docker | awk -F ":" '{ print $3 }')
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
-      "OSS_VERSION": "v0.5.1"
+      // TODO: update when v0.6.0 is available
+      "OSS_VERSION": "a3022dc4bc3530c8b832f8cfca150f0a55e58ac3"
     }
   },
   "runArgs": [
@@ -53,5 +54,5 @@
   // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
   "features": {},
   // Run commands after the container is created.
-  "postCreateCommand": ".devcontainer/scripts/post-create-command.sh"
+  "postCreateCommand": "./.devcontainer/scripts/post-create.sh"
 }
