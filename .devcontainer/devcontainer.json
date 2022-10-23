@@ -12,7 +12,7 @@
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
       // TODO: update when v0.6.0 is available
-      "OSS_VERSION": "a3022dc4bc3530c8b832f8cfca150f0a55e58ac3"
+      "OSS_VERSION": "17492e10bbd2af19d8eef147440343c0c135a821"
     }
   },
   "runArgs": [
