@@ -24,8 +24,7 @@ ARG NODE_VERSION="lts/*"
 RUN su $USERNAME -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"
 
 # Install terraform
-# version 1.3.0/1 has issues with keep recreating certificate
-ARG TERRAFORM_VERSION="1.2.9"
+ARG TERRAFORM_VERSION="1.3.2"
 COPY .devcontainer/scripts/terraform.sh /tmp/
 RUN bash /tmp/terraform.sh "${TERRAFORM_VERSION}" /usr/bin
 
@@ -53,15 +52,19 @@ RUN if [ "${INTERACTIVE}" = "true" ]; then \
 # Not using the script from https://cdn.porter.sh/latest/install-linux.sh
 # as it installs things we don't need and duplicates the binary.
 ARG PORTER_MIRROR=https://cdn.porter.sh
-ARG PORTER_PERMALINK=v0.38.13
-ARG PORTER_PKG_PERMALINK=latest
-ARG PORTER_TERRAFORM_MIXIN_PKG_PERMALINK="v1.0.0-rc.1"
+ARG PORTER_VERSION=v0.38.13
+ARG PORTER_TERRAFORM_MIXIN_VERSION=v1.0.0-rc.1
+ARG PORTER_AZ_MIXIN_VERSION=v0.7.3
+ARG PORTER_DOCKER_MIXIN_VERSION=v0.3.0
+ARG PORTER_AZURE_PLUGIN_VERSION=v0.11.2
 ARG PORTER_HOME=/home/$USERNAME/.porter/
 COPY .devcontainer/scripts/porter.sh /tmp/
 RUN export PORTER_MIRROR=${PORTER_MIRROR} \
-    PORTER_PERMALINK=${PORTER_PERMALINK} \
-    PORTER_PKG_PERMALINK=${PORTER_PKG_PERMALINK} \
-    PORTER_TERRAFORM_MIXIN_PKG_PERMALINK=${PORTER_TERRAFORM_MIXIN_PKG_PERMALINK} \
+    PORTER_VERSION=${PORTER_VERSION} \
+    PORTER_TERRAFORM_MIXIN_VERSION=${PORTER_TERRAFORM_MIXIN_VERSION} \
+    PORTER_AZ_MIXIN_VERSION=${PORTER_AZ_MIXIN_VERSION} \
+    PORTER_DOCKER_MIXIN_VERSION=${PORTER_DOCKER_MIXIN_VERSION} \
+    PORTER_AZURE_PLUGIN_VERSION=${PORTER_AZURE_PLUGIN_VERSION} \
     PORTER_HOME=${PORTER_HOME} \
     && /tmp/porter.sh
 
@@ -97,3 +100,7 @@ COPY .devcontainer/scripts/install-azure-tre-oss.sh .devcontainer/devcontainer.j
 RUN oss_version_in_json=$(grep -oP '(?<="OSS_VERSION": ")[^"]*' /tmp/devcontainer.json) \
     && /tmp/install-azure-tre-oss.sh "${OSS_VERSION:-$oss_version_in_json}" "${AZURETRE_HOME}" \
     && sudo chown -R $USERNAME ${AZURETRE_HOME}
+
+# Install tre-cli
+WORKDIR /"${AZURETRE_HOME}"/cli
+RUN make install-cli && echo -e "\n# Set up tre completion\nsource <(_TRE_COMPLETE=bash_source tre)" >> ~/.bashrc
