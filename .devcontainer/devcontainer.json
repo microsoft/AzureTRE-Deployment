@@ -42,7 +42,7 @@
   "extensions": [
     "hashicorp.terraform",
     "github.vscode-pull-request-github",
-    "ms-kubernetes-tools.porter-vscode",
+    "getporter.porter-vscode",
     "davidanson.vscode-markdownlint",
     "editorconfig.editorconfig",
     "mikestead.dotenv",
