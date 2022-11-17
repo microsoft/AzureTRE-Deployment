@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.231.5/containers/ubuntu
 {
-  "name": "AZURETRE-DEPLOYMENT",
+  "name": "AzureTRE-Deployment",
   "build": {
     "context": "..",
     "dockerfile": "Dockerfile",
@@ -11,7 +11,9 @@
       // 		export DOCKER_GROUP_ID=$(getent group docker | awk -F ":" '{ print $3 }')
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
-      "OSS_VERSION": "v0.6.0"
+      // TODO: remove the specific sha
+      "OSS_VERSION": "c89c31a990b41f8c9c11bacd33c9311504c8afdd"
+      // "OSS_VERSION": "v0.7.0"
     }
   },
   "runArgs": [
@@ -50,7 +52,6 @@
   ],
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
-  // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
   "features": {},
   // Run commands after the container is created.
   "postCreateCommand": "./.devcontainer/scripts/post-create.sh"
