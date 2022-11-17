@@ -11,9 +11,7 @@
       // 		export DOCKER_GROUP_ID=$(getent group docker | awk -F ":" '{ print $3 }')
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
-      // TODO: remove the specific sha
-      "OSS_VERSION": "c89c31a990b41f8c9c11bacd33c9311504c8afdd"
-      // "OSS_VERSION": "v0.7.0"
+      "OSS_VERSION": "v0.7.0"
     }
   },
   "runArgs": [
