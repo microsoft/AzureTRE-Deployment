@@ -91,11 +91,11 @@ while read -r rg_name rg_ref_name; do
   fi
 done
 
-check if any workflows run on the main branch (except the cleanup=current one)
-to prevent us deleting a workspace for which an E2E (on main) is currently running
+# check if any workflows run on the main branch (except the cleanup=current one)
+# to prevent us deleting a workspace for which an E2E (on main) is currently running
 
-Before uncommenting and enabling this part,
-Make sure to replace gihub_org and gihub_repo below
+# Before uncommenting and enabling this part,
+# Make sure to replace gihub_org and gihub_repo below
 
 if [[ -z $(gh api "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs?branch=main&status=in_progress" | jq --arg name "$GITHUB_WORKFLOW" '.workflow_runs | select(.[].name != $name)') ]]
 then
