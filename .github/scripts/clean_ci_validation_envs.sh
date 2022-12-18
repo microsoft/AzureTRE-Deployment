@@ -93,18 +93,18 @@ done
 
 # check if any workflows run on the main branch (except the cleanup=current one)
 # to prevent us deleting a workspace for which an E2E (on main) is currently running
-# 
+
 # Before uncommenting and enabling this part,
 # Make sure to replace gihub_org and gihub_repo below
-# 
-# if [[ -z $(gh api "https://api.github.com/repos/<gihub_org>/<gihub_repo>/actions/runs?branch=main&status=in_progress" | jq --arg name "$GITHUB_WORKFLOW" '.workflow_runs | select(.[].name != $name)') ]]
-# then
-#   # if not, we can delete old workspace resource groups that were left due to errors.
-#   az group list --query "[?starts_with(name, 'rg-${MAIN_TRE_ID}-ws-')].name" -o tsv |
-#   while read -r rg_name; do
-#     echo "Deleting resource group: ${rg_name}"
-#     az group delete --yes --no-wait --name "${rg_name}"
-#   done
-# else
-#   echo "Workflows are running on the main branch, can't delete e2e workspaces."
-# fi
+
+if [[ -z $(gh api "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs?branch=main&status=in_progress" | jq --arg name "$GITHUB_WORKFLOW" '.workflow_runs | select(.[].name != $name)') ]]
+then
+  # if not, we can delete old workspace resource groups that were left due to errors.
+  az group list --query "[?starts_with(name, 'rg-${MAIN_TRE_ID}-ws-')].name" -o tsv |
+  while read -r rg_name; do
+    echo "Deleting resource group: ${rg_name}"
+    az group delete --yes --no-wait --name "${rg_name}"
+  done
+else
+  echo "Workflows are running on the main branch, can't delete e2e workspaces."
+fi
