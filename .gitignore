@@ -13,6 +13,9 @@ venv.bak/
 private.env
 /devops/auth.env
 
+# Config
+config.yaml
+
 # CNAB
 .cnab/
 **/.cnab
