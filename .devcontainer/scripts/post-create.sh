@@ -9,5 +9,7 @@ set -o nounset
 rm -fr AzureTRE || true
 ln -s "${AZURETRE_HOME}" AzureTRE
 
+find ~/AzureTRE/ -name \*config.sample.yaml -exec cp {} devops/ \;
+
 # docker socket fixup
 sudo bash AzureTRE/devops/scripts/set_docker_sock_permission.sh
