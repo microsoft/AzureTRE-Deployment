@@ -51,6 +51,9 @@ inputs:
   TRE_ADDRESS_SPACE:
     description: "TRE address apace."
     required: false
+  ENABLE_SWAGGER:
+    description: "Determines whether the Swagger interface for the API will be available."
+    required: false
   SWAGGER_UI_CLIENT_ID:
     description: "The Swagger UI Client ID."
     required: false
