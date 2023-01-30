@@ -31,18 +31,6 @@ As part of the devcontainer definition a specific version of AzureTRE is downloa
 
 To upgrade AzureTRE version go to [devcontainer.json](.devcontainer/devcontainer.json) and update the `OSS_VERSION` param to the desired version.
 
-### Configuration Setup
-
-The configuration files are required for the AzureTRE local deployment. Before setting up the configuration files make sure to follow the [AzureTRE pre-deployment steps](https://microsoft.github.io/AzureTRE/tre-admins/setup-instructions/pre-deployment-steps/) to setup and understand the required configuration.
-
- In this repository there are 3 configuration files:
-
-- [auth.env](/devops/auth.env.sample) - Created during bash `make auth` and contains the required authentication setup.
-- [/devops/.env](/devops/.env.sample) - contains deployment related configuration such as management infrastructure and azure credentials.
-- [/templates/core/.env](/devops/.env.sample) - contains TRE setup config.
-
-Copy the sample env files, renaming them without the sample suffix (For example: .env.sample -> .env).Then fill in the required environment configurations.
-
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
