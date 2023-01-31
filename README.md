@@ -1,6 +1,7 @@
 # AzureTRE-Deployment Repo
 
-The AzureTRE deployment repository is a one-stop source for deploying and managing AzureTRE, designed to simplify the deployment process with its centralized repository of scripts, configurations, and templates. In addition to the pre-packaged templates, this repository allows you to add custom templates for deploying your own unique solutions on AzureTRE. With the ability to deploy AzureTRE and custom templates, you have the flexibility to fully customize your deployment and meet the specific needs of your organization. 
+The AzureTRE deployment repository is a one-stop source for deploying and managing AzureTRE, designed to simplify the deployment process with its centralized repository of scripts, configurations, and templates.
+In addition to the pre-packaged templates, this repository allows you to add custom templates for deploying your own unique solutions on AzureTRE. With the ability to deploy AzureTRE and custom templates, you have the flexibility to fully customize your deployment and meet the specific needs of your organization.
 
 See the [Azure TRE documentation](https://microsoft.github.io/AzureTRE/) which includes detailed documentation and best practices to ensure a successful deployment and to assist you with customizing your own templates using this repository.
 
