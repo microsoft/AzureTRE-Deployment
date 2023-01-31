@@ -1,6 +1,6 @@
 # AzureTRE-Deployment Repo
 
-This project is intended to assist the deployment of the Azure TRE project in real world environments. This includes deploying using a dev container from your local machine, deploying using GitHub Actions, and publishing custom templates. See [Azure TRE docs](https://microsoft.github.io/AzureTRE/) to learn how to get started with Azure TRE, how to deploy it in your environment using this repo and more.
+This project is intended to assist the deployment of the Azure TRE project in real world environments. This includes deploying using a dev container from your local machine, deploying using GitHub Actions, and publishing custom templates.
 
 See the [Azure TRE documentation](https://microsoft.github.io/AzureTRE/) which includes detailed documentation and best practices to ensure a successful deployment and to assist you with customizing your own templates using this repository.
 
@@ -13,7 +13,6 @@ In this project you will find:
 - Workspace template definitions
 - User resource template definitions
 - Devcontainer setup
-
 
 ### Prerequisites
 
