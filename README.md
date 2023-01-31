@@ -1,6 +1,8 @@
 # AzureTRE-Deployment Repo
 
-This project is intended to assist the deployment of the Azure TRE project in real world environments. This includes deploying using GitHub Actions, and publishing custom templates. See [Azure TRE docs](https://microsoft.github.io/AzureTRE/) to learn how to get started with Azure TRE, how to deploy it in your environment using this repo and more.
+This project is intended to assist the deployment of the Azure TRE project in real world environments. This includes deploying using a dev container from your local machine, deploying using GitHub Actions, and publishing custom templates. See [Azure TRE docs](https://microsoft.github.io/AzureTRE/) to learn how to get started with Azure TRE, how to deploy it in your environment using this repo and more.
+
+See the [Azure TRE documentation](https://microsoft.github.io/AzureTRE/) which includes detailed documentation and best practices to ensure a successful deployment and to assist you with customizing your own templates using this repository.
 
 ## Contents
 
@@ -12,11 +14,6 @@ In this project you will find:
 - User resource template definitions
 - Devcontainer setup
 
-## Local development
-
-This project is setup to work locally with devcontainers [read more about it (here](https://code.visualstudio.com/docs/remote/containers)). It contains all the required tooling to develop your custom templates and deploy the Azure TRE. In addition it defines the AzureTRE version that will be downloaded and used in the container.
-
-The files for the dev container are located in `/.devcontainer/` folder.
 
 ### Prerequisites
 
@@ -24,24 +21,6 @@ To work with devcontainers you will need:
 
 - [Visual Studio Code](https://code.visualstudio.com)
 - [Remote containers extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-
-## Upgrading AzureTRE version
-
-As part of the devcontainer definition a specific version of AzureTRE is downloaded. The AzureTRE is then available to reference in the devconatiner but any changes to it are gitignored.
-
-To upgrade AzureTRE version go to [devcontainer.json](.devcontainer/devcontainer.json) and update the `OSS_VERSION` param to the desired version.
-
-### Configuration Setup
-
-The configuration files are required for the AzureTRE local deployment. Before setting up the configuration files make sure to follow the [AzureTRE pre-deployment steps](https://microsoft.github.io/AzureTRE/tre-admins/setup-instructions/pre-deployment-steps/) to setup and understand the required configuration.
-
- In this repository there are 3 configuration files:
-
-- [auth.env](/devops/auth.env.sample) - Created during bash `make auth` and contains the required authentication setup.
-- [/devops/.env](/devops/.env.sample) - contains deployment related configuration such as management infrastructure and azure credentials.
-- [/templates/core/.env](/devops/.env.sample) - contains TRE setup config.
-
-Copy the sample env files, renaming them without the sample suffix (For example: .env.sample -> .env).Then fill in the required environment configurations.
 
 ## Contributing
 
