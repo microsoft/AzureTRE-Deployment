@@ -14,13 +14,6 @@ In this project you will find:
 - User resource template definitions
 - Devcontainer setup
 
-## Local development
-
-The AzureTRE deployment repository includes support for deployment from your local machine using a devcontainer. Read more about it [here](https://code.visualstudio.com/docs/remote/containers).
-
-It contains all the required tooling to develop your custom templates and deploy the Azure TRE. In addition it defines the AzureTRE version that will be downloaded and used in the container.
-
-The files for the dev container are located in /.devcontainer/ folder.
 
 ### Prerequisites
 
