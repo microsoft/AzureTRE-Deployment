@@ -27,6 +27,10 @@ on:  # yamllint disable-line rule:truthy
         description: The name of the Github Action's environment this will deploy into
         type: string
         required: true
+      E2E_TESTS_NUMBER_PROCESSES:
+        description: ""
+        type: number
+        required: false
     secrets:
       AAD_TENANT_ID:
         description: ""
@@ -110,7 +114,7 @@ on:  # yamllint disable-line rule:truthy
         description: ""
         required: false
       RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE:
-        description: "Inputs"
+        description: ""
         required: false
 
 # This will prevent multiple runs of this entire workflow.
@@ -395,6 +399,8 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mysql"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/health-services"}
           - {BUNDLE_TYPE: "user_resource",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-windowsvm"}
           - {BUNDLE_TYPE: "user_resource",
@@ -463,7 +469,7 @@ jobs:
           # Although porter publish will build automatically, our makefile build target includes logic that should run
           COMMAND: >-
             for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
-            && break || sleep 30; done
+            && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ secrets.DEVCONTAINER_TAG }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           CI_CACHE_ACR_NAME: ${{ secrets.CI_CACHE_ACR_NAME}}
@@ -542,6 +548,8 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mysql"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/health-services"}
         # Add your bundles here
     environment: ${{ inputs.environmentName }}
     steps:
