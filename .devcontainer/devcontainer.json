@@ -11,7 +11,7 @@
       // 		export DOCKER_GROUP_ID=$(getent group docker | awk -F ":" '{ print $3 }')
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
-      "OSS_VERSION": "v0.8.0"
+      "OSS_VERSION": "90f842139e974843384c156c111d85e8b2ea5f77"
     }
   },
   "runArgs": [
@@ -27,7 +27,7 @@
     // Mount docker socket for docker builds
     "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock",
     // Mounts the github cli login details from the host machine to the container (~/.config/gh/hosts.yml)
-    "type=bind,source=${env:HOME}${env:USERPROFILE}/.config,target=/home/vscode/.config",
+    "type=bind,source=${env:HOME}${env:USERPROFILE}/.config,target=/home/vscode/.config"
   ],
   "remoteUser": "vscode",
   "containerEnv": {
