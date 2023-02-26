@@ -495,7 +495,7 @@ jobs:
           - {BUNDLE_TYPE: "shared_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/cyclecloud/"}
           - {BUNDLE_TYPE: "shared_service",
-             BUNDLE_DIR: "ה/templates/shared_services/sonatype-nexus-vm/"}
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/shared_services/sonatype-nexus-vm/"}
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
