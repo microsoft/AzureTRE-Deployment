@@ -93,7 +93,6 @@ done
 
 # check if any workflows run on the main branch (except the cleanup=current one)
 # to prevent us deleting a workspace for which an E2E (on main) is currently running
-
 if [[ -z $(gh api "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs?branch=main&status=in_progress" | jq --arg name "$GITHUB_WORKFLOW" '.workflow_runs | select(.[].name != $name)') ]]
 then
   # if not, we can delete old workspace resource groups that were left due to errors.
