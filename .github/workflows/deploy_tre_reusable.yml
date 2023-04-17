@@ -171,16 +171,6 @@ jobs:
             echo "Missing variable: LOCATION" && exit 1
           fi
 
-      - name: Report check status start
-        if: inputs.prHeadSha != ''
-        uses: LouisBrunner/checks-action@v1.6.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          sha: ${{ inputs.prHeadSha }}
-          name: "Deploy PR / Run E2E Tests (Smoke)"
-          status: "in_progress"
-          details_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
