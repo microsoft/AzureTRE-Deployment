@@ -222,7 +222,7 @@ jobs:
             az acr login --name "${{ secrets.CI_CACHE_ACR_NAME }}" && ec=0 && break || ec="$?" && sleep 10
           done
           # shellcheck disable=SC2242
-          (exit $ec)
+          (exit "$ec")
 
       - name: Push cached devcontainer
         run: docker image push ${{ env.CI_CACHE_ACR_URI }}/tredev:${{ inputs.DEVCONTAINER_TAG }}
