@@ -8,15 +8,13 @@ FROM --platform="${TARGETPLATFORM}" mcr.microsoft.com/vscode/devcontainers/pytho
 # This will be set to true when running in VSCode
 ARG INTERACTIVE="false"
 
-ARG USERNAME=vscode
 ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+ARG USERNAME=vscode
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Set up non-root user
-COPY .devcontainer/scripts/non-root-user.sh /tmp/
-RUN bash /tmp/non-root-user.sh "${USERNAME}" "${USER_UID}" "${USER_GID}"
+# make user ID match user ID on host machine
+RUN usermod --uid $USER_UID $USERNAME
 
 # Set env for tracking that we're running in a devcontainer
 ENV DEVCONTAINER=true
@@ -100,8 +98,9 @@ ARG OSS_VERSION
 ENV AZURETRE_HOME=/home/$USERNAME/AzureTRE
 COPY .devcontainer/scripts/install-azure-tre-oss.sh .devcontainer/devcontainer.json /tmp/
 # hadolint ignore=DL3004
-RUN oss_version_in_json=$(grep -oP '(?<="OSS_VERSION": ")[^"]*' /tmp/devcontainer.json) \
-    && /tmp/install-azure-tre-oss.sh "${OSS_VERSION:-$oss_version_in_json}" "${AZURETRE_HOME}" \
+RUN oss_repo_in_json=$(grep -oP '(?<="OSS_REPO": ")[^"]*' /tmp/devcontainer.json) \
+    && oss_version_in_json=$(grep -oP '(?<="OSS_VERSION": ")[^"]*' /tmp/devcontainer.json) \
+    && /tmp/install-azure-tre-oss.sh "${OSS_REPO:-$oss_repo_in_json}" "${OSS_VERSION:-$oss_version_in_json}" "${AZURETRE_HOME}"  \
     && sudo chown -R $USERNAME ${AZURETRE_HOME}
 
 # Install tre-cli
