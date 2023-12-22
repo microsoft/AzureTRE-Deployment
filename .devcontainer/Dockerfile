@@ -64,7 +64,7 @@ RUN export PORTER_VERSION=${PORTER_VERSION} \
 ENV PATH ${PORTER_HOME_V1}:$PATH
 
 # Install azure-cli
-ARG AZURE_CLI_VERSION=2.37.0-1~bullseye
+ARG AZURE_CLI_VERSION=2.50.0-1~bullseye
 COPY .devcontainer/scripts/azure-cli.sh /tmp/
 RUN export AZURE_CLI_VERSION=${AZURE_CLI_VERSION} \
     && /tmp/azure-cli.sh
