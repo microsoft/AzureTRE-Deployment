@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y ca-certificates curl gnupg lsb-release 
     && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
     && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
     | tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get update && apt-get install -y docker-ce="5:23.0.3-1~debian.11~bullseye" docker-ce-cli="5:23.0.3-1~debian.11~bullseye" containerd.io="1.6.20-1" docker-buildx-plugin --no-install-recommends \
+    && apt-get update && apt-get install -y docker-ce="5:24.0.0-1~debian.11~bullseye" docker-ce-cli="5:24.0.0-1~debian.11~bullseye" docker-compose-plugin="2.21.0-1~debian.11~bullseye" containerd.io="1.6.24-1" docker-buildx-plugin --no-install-recommends \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Install Certbot
@@ -64,7 +64,7 @@ RUN export PORTER_VERSION=${PORTER_VERSION} \
 ENV PATH ${PORTER_HOME_V1}:$PATH
 
 # Install azure-cli
-ARG AZURE_CLI_VERSION=2.50.0-1~bullseye
+ARG AZURE_CLI_VERSION=2.57.0-1~bullseye
 COPY .devcontainer/scripts/azure-cli.sh /tmp/
 RUN export AZURE_CLI_VERSION=${AZURE_CLI_VERSION} \
     && /tmp/azure-cli.sh
