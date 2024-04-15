@@ -6,7 +6,7 @@ name: Deploy Azure TRE
 on:  # yamllint disable-line rule:truthy
   schedule:
     # midnight every day https://crontab.guru/#0_0_*_*_*
-    - cron: "0 0 * * *"
+    # - cron: "0 0 * * *"
   push:
     branches: [main]
   workflow_dispatch:
