@@ -395,7 +395,9 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-export-reviewvm"}
           - {BUNDLE_TYPE: "user_resource",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-import-reviewvm"}
-          # Add your custom Bundles below this
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "./templates/workspace_services/databricks"}
+             # Add your custom Bundles below this
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
@@ -547,7 +549,9 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/databricks"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/ohdsi"}
-        # Add your bundles here
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "./templates/workspace_services/databricks"}
+             # Add your bundles here
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
