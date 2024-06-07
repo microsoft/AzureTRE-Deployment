@@ -12,7 +12,7 @@
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
       "OSS_REPO": "microsoft/AzureTRE",
-      "OSS_VERSION": "v0.17.0"
+      "OSS_VERSION": "v0.16.0"
     }
   },
   "runArgs": [
