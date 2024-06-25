@@ -276,12 +276,6 @@ jobs:
           # if the following values are missing (i.e. not triggered via comment workflow)
           # then the default checkout will apply
           ref: ${{ inputs.prRef }}
-      - name: Replace Tags
-        shell: bash
-        run: bash ./.github/scripts/replace_tags.sh  ${{ matrix.BUNDLE_DIR }} ${{ vars.CUSTOM_TAG_KEY_1 }} ${{ vars.CUSTOM_TAG_KEY_2 }} ${{ vars.CUSTOM_TAG_KEY_3 }} ${{ vars.CUSTOM_TAG_KEY_4 }} ${{ vars.CUSTOM_TAG_KEY_5 }} ${{ vars.CUSTOM_TAG_KEY_6 }}
-      - name: Replace Tag Enums
-        shell: bash
-        run: bash ./.github/scripts/replace_tag_enums.sh ${{ matrix.BUNDLE_DIR }} '${{ vars.CUSTOM_TAG_ENUM_1 }}' '${{ vars.CUSTOM_TAG_ENUM_2 }}' '${{ vars.CUSTOM_TAG_ENUM_3 }}'
       - name: Publish ${{ matrix.BUNDLE_TYPE }} bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
@@ -317,12 +311,6 @@ jobs:
           # if the following values are missing (i.e. not triggered via comment workflow)
           # then the default checkout will apply
           ref: ${{ inputs.prRef }}
-      - name: Replace Tags
-        shell: bash
-        run: bash ./.github/scripts/replace_tags.sh  ${{ matrix.BUNDLE_DIR }} ${{ vars.CUSTOM_TAG_KEY_1 }} ${{ vars.CUSTOM_TAG_KEY_2 }} ${{ vars.CUSTOM_TAG_KEY_3 }} ${{ vars.CUSTOM_TAG_KEY_4 }} ${{ vars.CUSTOM_TAG_KEY_5 }} ${{ vars.CUSTOM_TAG_KEY_6 }}
-      - name: Replace Tag Enums
-        shell: bash
-        run: bash ./.github/scripts/replace_tag_enums.sh ${{ matrix.BUNDLE_DIR }} '${{ vars.CUSTOM_TAG_ENUM_1 }}' '${{ vars.CUSTOM_TAG_ENUM_2 }}' '${{ vars.CUSTOM_TAG_ENUM_3 }}'
       - name: Register ${{ matrix.BUNDLE_TYPE }} bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
