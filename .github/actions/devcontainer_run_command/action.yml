@@ -128,7 +128,7 @@ inputs:
   FIREWALL_SKU:
     description: "Firewall SKU"
     required: false
-    default: "" 
+    default: ""
 
 runs:
   using: composite
