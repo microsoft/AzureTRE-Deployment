@@ -1,0 +1,123 @@
+{
+  "schemaType": "ParameterSet",
+  "schemaVersion": "1.0.1",
+  "namespace": "",
+  "name": "tre-service-guacamole",
+  "parameters": [
+    {
+      "name": "id",
+      "source": {
+        "env": "ID"
+      }
+    },    {
+      "name": "workspace_id",
+      "source": {
+        "env": "WORKSPACE_ID"
+      }
+    },
+    {
+      "name": "tre_id",
+      "source": {
+        "env": "TRE_ID"
+      }
+    },
+    {
+      "name": "mgmt_acr_name",
+      "source": {
+        "env": "ACR_NAME"
+      }
+    },
+    {
+      "name": "mgmt_resource_group_name",
+      "source": {
+        "env": "MGMT_RESOURCE_GROUP_NAME"
+      }
+    },
+    {
+      "name": "tfstate_container_name",
+      "source": {
+        "env": "TERRAFORM_STATE_CONTAINER_NAME"
+      }
+    },
+    {
+      "name": "tfstate_resource_group_name",
+      "source": {
+        "env": "MGMT_RESOURCE_GROUP_NAME"
+      }
+    },
+    {
+      "name": "tfstate_storage_account_name",
+      "source": {
+        "env": "MGMT_STORAGE_ACCOUNT_NAME"
+      }
+    },
+
+    {
+      "name": "guac_disable_copy",
+      "source": {
+        "env": "GUAC_DISABLE_COPY"
+      }
+    },
+    {
+      "name": "guac_disable_download",
+      "source": {
+        "env": "GUAC_DISABLE_DOWNLOAD"
+      }
+    },
+    {
+      "name": "guac_disable_upload",
+      "source": {
+        "env": "GUAC_DISABLE_UPLOAD"
+      }
+    },
+    {
+      "name": "guac_disable_paste",
+      "source": {
+        "env": "GUAC_DISABLE_PASTE"
+      }
+    },
+    {
+      "name": "guac_drive_name",
+      "source": {
+        "env": "GUAC_DRIVE_NAME"
+      }
+    },
+    {
+      "name": "guac_drive_path",
+      "source": {
+        "env": "GUAC_DRIVE_PATH"
+      }
+    },
+    {
+      "name": "guac_enable_drive",
+      "source": {
+        "env": "GUAC_ENABLE_DRIVE"
+      }
+    },
+    {
+      "name": "image_tag",
+      "source": {
+        "env": "IMAGE_TAG"
+      }
+    },
+    {
+      "name": "is_exposed_externally",
+      "source": {
+        "env": "IS_EXPOSED_EXTERNALLY"
+      }
+    },
+    {
+      "name": "aad_authority_url",
+      "source": {
+        "env": "AAD_AUTHORITY_URL"
+      }
+    },
+    {
+      "name": "arm_environment",
+      "source": {
+        "env": "ARM_ENVIRONMENT"
+      }
+    }
+  ]
+}
+

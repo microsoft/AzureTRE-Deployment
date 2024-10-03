@@ -1,0 +1,26 @@
+{
+  "schemaType": "CredentialSet",
+  "schemaVersion": "1.0.1",
+  "namespace": "",
+  "name": "aad_auth",
+  "credentials": [
+    {
+      "name": "auth_tenant_id",
+      "source": {
+        "env": "AAD_TENANT_ID"
+      }
+    },
+    {
+      "name": "auth_client_id",
+      "source": {
+        "env": "APPLICATION_ADMIN_CLIENT_ID"
+      }
+    },
+    {
+      "name": "auth_client_secret",
+      "source": {
+        "env": "APPLICATION_ADMIN_CLIENT_SECRET"
+      }
+    }
+  ]
+}

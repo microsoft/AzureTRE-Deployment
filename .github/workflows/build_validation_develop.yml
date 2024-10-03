@@ -26,16 +26,46 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            terraform:
+              # our Terraform uses more than just *.tf files, so need to check changes in the folder
+              - '**/terraform/**/*'
+            core:
+              - 'core/**/*'
+            core_version:
+              - 'core/version.txt'
+            docs:
+              - 'docs/**/*'
+
+            terraform_workspaces:
+              - templates/workspaces/**/terraform/**/*.tf
+
+            terraform_shared_services:
+              - templates/shared_services/**/terraform/**/*.tf
+
+            terraform_workspace_services:
+              - templates/workspace_services/**/terraform/**/*.tf
+
       - name: Terraform format check
+        if: ${{ steps.filter.outputs.terraform == 'true' }}
         run: terraform fmt -check -recursive
 
       # find all terraform folders and run validate to catch
       # configuration errors
       - name: Terraform validation
+        if: ${{ steps.filter.outputs.terraform == 'true' }}
         run: |
           find . -type d -name 'terraform' -not -path '*cnab*' -print0 \
           | xargs -0 -I{} sh -c 'echo "***** Validating: {} *****"; \
           terraform -chdir={} init -backend=false; terraform -chdir={} validate'
+
+      - name: "Stale version: core"
+        if: ${{ steps.filter.outputs.core == 'true' &&
+          steps.filter.outputs.core_version == 'false' }}
+        run: echo "::error::Code update without version change" && exit 1
 
       - name: Lint code base
         # the slim image is 2GB smaller and we don't use the extra stuff
@@ -50,12 +80,23 @@ jobs:
           VALIDATE_PYTHON_FLAKE8: true
           VALIDATE_YAML: true
           VALIDATE_TERRAFORM_TFLINT: true
+          VALIDATE_JAVA: true
+          JAVA_FILE_NAME: checkstyle.xml
           VALIDATE_BASH: true
           VALIDATE_BASH_EXEC: true
           VALIDATE_GITHUB_ACTIONS: true
           VALIDATE_DOCKERFILE_HADOLINT: true
+          VALIDATE_TSX: true
+          VALIDATE_TYPESCRIPT_ES: true
+
+      - name: Docs validation
+        if: ${{ steps.filter.outputs.docs == 'true' }}
+        run: |
+          pip install -r docs/requirements.txt
+          mkdocs build --strict
 
       - name: Workspace Tags
+        if: ${{ steps.filter.outputs.terraform_workspaces == 'true' }}
         uses: github/super-linter/slim@v5.0.0
         env:
           VALIDATE_ALL_CODEBASE: false
@@ -66,6 +107,7 @@ jobs:
           LINTER_REGEX_INCLUDE: './templates/workspaces/.*'
 
       - name: Workspace Services Tags
+        if: ${{ steps.filter.outputs.terraform_workspace_services == 'true' }}
         uses: github/super-linter/slim@v5.0.0
         env:
           VALIDATE_ALL_CODEBASE: false
@@ -77,6 +119,7 @@ jobs:
           FILTER_REGEX_EXCLUDE: '.*user_resource.*'
 
       - name: User Resources Tags
+        if: ${{ steps.filter.outputs.terraform_workspace_services == 'true' }}
         uses: github/super-linter/slim@v5.0.0
         env:
           VALIDATE_ALL_CODEBASE: false
@@ -87,6 +130,7 @@ jobs:
           LINTER_REGEX_INCLUDE: './templates/workspace_services/.*/user_resources/.*'
 
       - name: Shared Services Tags
+        if: ${{ steps.filter.outputs.terraform_shared_services == 'true' }}
         uses: github/super-linter/slim@v5.0.0
         env:
           VALIDATE_ALL_CODEBASE: false

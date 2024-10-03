@@ -11,10 +11,10 @@ ARG INTERACTIVE="false"
 ARG USER_UID=1000
 ARG USERNAME=vscode
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
 # make user ID match user ID on host machine
 RUN usermod --uid $USER_UID $USERNAME
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Set env for tracking that we're running in a devcontainer
 ENV DEVCONTAINER=true
@@ -63,6 +63,17 @@ RUN export PORTER_VERSION=${PORTER_VERSION} \
 
 ENV PATH ${PORTER_HOME_V1}:$PATH
 
+# Install requirements
+ARG PIP_VERSION=23.3.1
+RUN  pip3 --no-cache-dir install pip==${PIP_VERSION} && pip3 config set global.disable-pip-version-check true
+COPY ["requirements.txt", "/tmp/pip-tmp/" ]
+COPY ["api_app/requirements.txt", "api_app/requirements-dev.txt", "/tmp/pip-tmp/api_app/" ]
+COPY ["resource_processor/vmss_porter/requirements.txt", "/tmp/pip-tmp/resource_processor/vmss_porter/" ]
+COPY ["docs/requirements.txt", "/tmp/pip-tmp/docs/"]
+COPY ["e2e_tests/requirements.txt", "/tmp/pip-tmp/e2e_tests/"]
+COPY ["airlock_processor/requirements.txt", "/tmp/pip-tmp/airlock_processor/"]
+RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt
+
 # Install azure-cli
 ARG AZURE_CLI_VERSION=2.57.0-1~bullseye
 COPY .devcontainer/scripts/azure-cli.sh /tmp/
@@ -93,19 +104,9 @@ RUN echo "export HISTFILE=$HOME/commandhistory/.bash_history" >> "$HOME/.bashrc"
 COPY ./.devcontainer/scripts/gh.sh /tmp/
 RUN if [ "${INTERACTIVE}" = "true" ]; then /tmp/gh.sh; fi
 
-# Install AzureTRE OSS
-ARG OSS_REPO
-ARG OSS_VERSION
-ENV AZURETRE_HOME=/home/$USERNAME/AzureTRE
-COPY .devcontainer/scripts/install-azure-tre-oss.sh .devcontainer/devcontainer.json /tmp/
-# hadolint ignore=DL3004
-RUN oss_repo_in_json=$(grep -oP '(?<="OSS_REPO": ")[^"]*' /tmp/devcontainer.json) \
-    && oss_version_in_json=$(grep -oP '(?<="OSS_VERSION": ")[^"]*' /tmp/devcontainer.json) \
-    && /tmp/install-azure-tre-oss.sh "${OSS_REPO:-$oss_repo_in_json}" "${OSS_VERSION:-$oss_version_in_json}" "${AZURETRE_HOME}"  \
-    && sudo chown -R $USERNAME ${AZURETRE_HOME}
-
 # Install tre-cli
-WORKDIR /"${AZURETRE_HOME}"/cli
+COPY ./cli /tmp/cli
+WORKDIR /tmp/cli
 RUN make install-cli && echo -e "\n# Set up tre completion\nsource <(_TRE_COMPLETE=bash_source tre)" >> ~/.bashrc
 
 # Build x86-64 docker images by default

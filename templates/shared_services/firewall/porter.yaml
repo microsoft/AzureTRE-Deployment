@@ -1,0 +1,108 @@
+---
+schemaVersion: 1.0.0
+name: tre-shared-service-firewall
+version: 1.2.1
+description: "An Azure TRE Firewall shared service"
+dockerfile: Dockerfile.tmpl
+registry: azuretre
+
+credentials:
+  - name: azure_tenant_id
+    env: ARM_TENANT_ID
+  - name: azure_subscription_id
+    env: ARM_SUBSCRIPTION_ID
+  - name: azure_client_id
+    env: ARM_CLIENT_ID
+  - name: azure_client_secret
+    env: ARM_CLIENT_SECRET
+
+parameters:
+  - name: tre_id
+    type: string
+    description: "The ID of the parent TRE instance e.g., mytre-dev-3142"
+  - name: id
+    type: string
+    description: "Resource ID"
+  - name: tfstate_resource_group_name
+    type: string
+    description: "Resource group containing the Terraform state storage account"
+  - name: tfstate_storage_account_name
+    type: string
+    description: "The name of the Terraform state storage account"
+  - name: tfstate_container_name
+    type: string
+    default: "tfstate"
+    description: "The name of the Terraform state storage container"
+  - name: arm_use_msi
+    env: ARM_USE_MSI
+    type: boolean
+    default: false
+  - name: rule_collections
+    type: string
+    default: "W10=" # b64 for []
+    description: "Application rule collection array"
+  - name: network_rule_collections
+    type: string
+    default: "W10=" # b64 for []
+    description: "Network rule collection array"
+  - name: firewall_sku
+    type: string
+    default: Standard
+    description: The firewall and its policy SKU tier
+  - name: microsoft_graph_fqdn
+    type: string
+    default: "graph.microsoft.com"
+  - name: arm_environment
+    type: string
+
+mixins:
+  - terraform:
+      clientVersion: 1.4.5
+
+install:
+  - terraform:
+      description: "Deploy shared service"
+      vars:
+        tre_id: ${ bundle.parameters.tre_id }
+        tre_resource_id: ${ bundle.parameters.id }
+        api_driven_rule_collections_b64: ${ bundle.parameters.rule_collections }
+        api_driven_network_rule_collections_b64: ${ bundle.parameters.network_rule_collections }
+        firewall_sku: ${ bundle.parameters.firewall_sku }
+        microsoft_graph_fqdn: ${ bundle.parameters.microsoft_graph_fqdn }
+      backendConfig:
+        resource_group_name: ${ bundle.parameters.tfstate_resource_group_name }
+        storage_account_name: ${ bundle.parameters.tfstate_storage_account_name }
+        container_name: ${ bundle.parameters.tfstate_container_name }
+        key: ${ bundle.parameters.tre_id }-shared-service-firewall
+
+upgrade:
+  - terraform:
+      description: "Upgrade shared service"
+      vars:
+        tre_id: ${ bundle.parameters.tre_id }
+        tre_resource_id: ${ bundle.parameters.id }
+        api_driven_rule_collections_b64: ${ bundle.parameters.rule_collections }
+        api_driven_network_rule_collections_b64: ${ bundle.parameters.network_rule_collections }
+        firewall_sku: ${ bundle.parameters.firewall_sku }
+        microsoft_graph_fqdn: ${ bundle.parameters.microsoft_graph_fqdn }
+      backendConfig:
+        resource_group_name: ${ bundle.parameters.tfstate_resource_group_name }
+        storage_account_name: ${ bundle.parameters.tfstate_storage_account_name }
+        container_name: ${ bundle.parameters.tfstate_container_name }
+        key: ${ bundle.parameters.tre_id }-shared-service-firewall
+
+uninstall:
+  - terraform:
+      description: "Tear down shared service"
+      vars:
+        tre_id: ${ bundle.parameters.tre_id }
+        tre_resource_id: ${ bundle.parameters.id }
+        api_driven_rule_collections_b64: ${ bundle.parameters.rule_collections }
+        api_driven_network_rule_collections_b64: ${ bundle.parameters.network_rule_collections }
+        firewall_sku: ${ bundle.parameters.firewall_sku }
+        microsoft_graph_fqdn: ${ bundle.parameters.microsoft_graph_fqdn }
+      backendConfig:
+        resource_group_name: ${ bundle.parameters.tfstate_resource_group_name }
+        storage_account_name: ${ bundle.parameters.tfstate_storage_account_name }
+        container_name: ${ bundle.parameters.tfstate_container_name }
+        key: ${ bundle.parameters.tre_id }-shared-service-firewall

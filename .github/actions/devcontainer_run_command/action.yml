@@ -155,14 +155,14 @@ runs:
     - name: Construct TRE_URL
       shell: bash
       run: |
-        source .github/scripts/construct_tre_url.sh
+        source devops/scripts/construct_tre_url.sh
         tre_url=$(construct_tre_url "${{ inputs.TRE_ID }}" "${{ inputs.LOCATION }}" "${{ env.AZURE_ENVIRONMENT }}")
         echo "TRE_URL=$tre_url" >> $GITHUB_ENV
 
     - name: Construct ARM_ENVIRONMENT
       shell: bash
       run: |
-        source .github/scripts/convert_azure_env_to_arm_env.sh
+        source devops/scripts/convert_azure_env_to_arm_env.sh
         arm_environment=$(convert_azure_env_to_arm_env "${{ env.AZURE_ENVIRONMENT }}")
         echo "ARM_ENVIRONMENT=$arm_environment" >> $GITHUB_ENV
 

@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://github.com/microsoft/AzureTRE/templates/workspace_services/guacamole/user_resources/guacamole-azure-linuxvm/template_schema.json",
+  "type": "object",
+  "title": "Linux Virtual Machine",
+  "description": "Linux virtual machine.",
+  "required": [
+  ],
+  "authorizedRoles": [
+    "WorkspaceOwner", "WorkspaceResearcher"
+  ],
+  "properties": {
+    "os_image": {
+      "$id": "#/properties/os_image",
+      "type": "string",
+      "title": "Linux image",
+      "description": "Select Linux image to use for VM",
+      "enum": [
+        "Ubuntu 22.04 LTS"
+      ]
+    },
+    "vm_size": {
+      "$id": "#/properties/vm_size",
+      "type": "string",
+      "title": "VM Size",
+      "description": "Select size of VM",
+      "enum": [
+        "2 CPU | 8GB RAM",
+        "4 CPU | 16GB RAM",
+        "8 CPU | 32GB RAM",
+        "16 CPU | 64GB RAM"
+      ],
+      "updateable": true
+    },
+    "shared_storage_access": {
+      "$id": "#/properties/shared_storage_access",
+      "type": "boolean",
+      "title": "Shared storage",
+      "default": true,
+      "description": "Enable access to shared storage"
+    }
+  }
+}

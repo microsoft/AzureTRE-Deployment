@@ -1,0 +1,26 @@
+# syntax=docker/dockerfile-upstream:1.4.0
+FROM --platform=linux/amd64 python:3.11-slim-bullseye
+
+# PORTER_INIT
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
+# Install jq
+RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
+    apt-get update \
+    && apt-get install -y --no-install-recommends jq
+
+# Install Certbot
+RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
+    apt-get update \
+    && apt-get install -y --no-install-recommends libaugeas0 \
+    && python3 -m venv /opt/certbot/ \
+    && /opt/certbot/bin/pip install --no-cache-dir --upgrade pip \
+    && /opt/certbot/bin/pip install --no-cache-dir certbot
+
+# PORTER_MIXINS
+
+# Use the BUNDLE_DIR build argument to copy files into the bundle
+COPY --link . ${BUNDLE_DIR}/

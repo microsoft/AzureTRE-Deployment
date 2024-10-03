@@ -1,0 +1,26 @@
+{
+  "schemaType": "CredentialSet",
+  "schemaVersion": "1.0.1",
+  "namespace": "",
+  "name": "aad_auth",
+  "credentials": [
+    {
+      "name": "auth_tenant_id",
+      "source": {
+        "secret": "auth-tenant-id"
+      }
+    },
+    {
+      "name": "auth_client_id",
+      "source": {
+        "secret": "application-admin-client-id"
+      }
+    },
+    {
+      "name": "auth_client_secret",
+      "source": {
+        "secret": "application-admin-client-secret"
+      }
+    }
+  ]
+}

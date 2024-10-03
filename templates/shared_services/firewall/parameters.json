@@ -1,0 +1,68 @@
+{
+  "schemaType": "ParameterSet",
+  "schemaVersion": "1.0.1",
+  "namespace": "",
+  "name": "tre-shared-service-firewall",
+  "parameters": [
+    {
+      "name": "tre_id",
+      "source": {
+        "env": "TRE_ID"
+      }
+    },
+    {
+      "name": "id",
+      "source": {
+        "env": "ID"
+      }
+    },
+    {
+      "name": "tfstate_container_name",
+      "source": {
+        "env": "TERRAFORM_STATE_CONTAINER_NAME"
+      }
+    },
+    {
+      "name": "tfstate_resource_group_name",
+      "source": {
+        "env": "MGMT_RESOURCE_GROUP_NAME"
+      }
+    },
+    {
+      "name": "tfstate_storage_account_name",
+      "source": {
+        "env": "MGMT_STORAGE_ACCOUNT_NAME"
+      }
+    },
+    {
+      "name": "rule_collections",
+      "source": {
+        "env": "RULE_COLLECTIONS"
+      }
+    },
+    {
+      "name": "network_rule_collections",
+      "source": {
+        "env": "NETWORK_RULE_COLLECTIONS"
+      }
+    },
+    {
+      "name": "firewall_sku",
+      "source": {
+        "env": "FIREWALL_SKU"
+      }
+    },
+    {
+      "name": "microsoft_graph_fqdn",
+      "source": {
+        "env": "MICROSOFT_GRAPH_FQDN"
+      }
+    },
+    {
+      "name": "arm_environment",
+      "source": {
+        "env": "ARM_ENVIRONMENT"
+      }
+    }
+  ]
+}
