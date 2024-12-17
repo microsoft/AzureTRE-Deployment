@@ -252,5 +252,5 @@ runs:
           '${{ inputs.CI_CACHE_ACR_NAME }}${{ env.ACR_DOMAIN_SUFFIX }}/tredev:${{ inputs.DEVCONTAINER_TAG }}' \
         bash -c "./command.sh"
 
-      # Clean up temporary script file
-      rm "${SCRIPT_FILE}"
+        # Clean up temporary script file
+        rm "${SCRIPT_FILE}"
