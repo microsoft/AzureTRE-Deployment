@@ -5,15 +5,6 @@ name: Register TRE Bundle
 # by default, if not specified, the base workspace bundle will be registered into the TRE environment.
 
 on:
-  workflow_call:
-    inputs:
-      bundle_type:
-        description: The type of bundle to register
-        type: string
-        required: true
-  push:
-    branches:
-      - guybartal/publish-bundle-workflow
   workflow_dispatch:
     inputs:
       environmentName:
@@ -29,12 +20,10 @@ on:
           - workspace_service
           - shared_service
           - user_resource
-        default: workspace_service
         required: true
       bundle_name:
         description: The name of the bundle to register
         type: string
-        default: azureml
         required: true
       workspace_service_name:
         description: The name of the workspace service to register user resources for
@@ -65,7 +54,9 @@ jobs:
           echo AAD_TENANT_ID: ${{ secrets.AAD_TENANT_ID }}
           echo ACR_NAME: ${{ secrets.ACR_NAME }}
           echo API_CLIENT_ID: ${{ secrets.API_CLIENT_ID }}
-
+          echo "bundle_name   : ${{ inputs.bundle_name }}"
+          echo "bundle_type   : ${{ inputs.bundle_type }}"
+          echo "workspace_service_name: ${{ inputs.workspace_service_name }}"
 
       - name: Check required values
         id: check_required_values
@@ -101,6 +92,24 @@ jobs:
             echo "Missing secret: AZURE_CREDENTIALS" && exit 1
           fi
 
+          bundle_name="${{ inputs.bundle_name }}"
+          bundle_type="${{ inputs.bundle_type }}"
+          workspace_service_name="${{ inputs.workspace_service_name }}"
+
+          # if bundle_name is not set, exit with error
+          if [ -z "${bundle_name}" ]; then
+            echo "Missing input: bundle_name" && exit 1
+          fi
+
+          if [ -z "${bundle_type}" ]; then
+            echo "Missing input: bundle_type" && exit 1
+          fi
+
+          if [ $bundle_type = "user_resource" ]; then
+            if [ -z "${workspace_service_name}" ]; then
+               echo "Missing input: workspace_service_name" && exit 1
+            fi
+          fi
       - name: Report check status start
         if: github.sha != ''
         uses: LouisBrunner/checks-action@v2.0.0
@@ -227,13 +236,9 @@ jobs:
         with:
           COMMAND: |
             echo "Starting bundle registration"
-            bundle_name="${{ inputs.bundle_name || 'base' }}"
-            bundle_type="${{ inputs.bundle_type || 'workspace' }}"
+            bundle_name="${{ inputs.bundle_name }}"
+            bundle_type="${{ inputs.bundle_type }}"
             workspace_service_name="${{ inputs.workspace_service_name }}"
-
-            echo "bundle_name: [${bundle_name}]"
-            echo "bundle_type: [${bundle_type}]"
-            echo "workspace_service_name: [${workspace_service_name}]"
 
             if [ $bundle_type = "workspace" ]; then
               echo "Registering workspace bundle $bundle_name of type $bundle_type"
@@ -267,4 +272,4 @@ jobs:
           TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
           TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
-          LOCATION: "uksouth"
+          LOCATION: ${{ vars.LOCATION }}
