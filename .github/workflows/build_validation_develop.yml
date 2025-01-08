@@ -63,7 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_TERRAFORM_TFLINT: true
           TERRAFORM_TFLINT_CONFIG_FILE: .tflint_workspaces.hcl
-          LINTER_REGEX_INCLUDE: './templates/workspaces/.*'
+          FILTER_REGEX_INCLUDE: './templates/workspaces/.*'
 
       - name: Workspace Services Tags
         uses: github/super-linter/slim@v5.0.0
@@ -73,7 +73,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_TERRAFORM_TFLINT: true
           TERRAFORM_TFLINT_CONFIG_FILE: .tflint_workspace_services.hcl
-          LINTER_REGEX_INCLUDE: './templates/workspaces/.*'
+          FILTER_REGEX_INCLUDE: './templates/workspaces/.*'
           FILTER_REGEX_EXCLUDE: '.*user_resource.*'
 
       - name: User Resources Tags
@@ -84,7 +84,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_TERRAFORM_TFLINT: true
           TERRAFORM_TFLINT_CONFIG_FILE: .tflint_user_resources.hcl
-          LINTER_REGEX_INCLUDE: './templates/workspace_services/.*/user_resources/.*'
+          FILTER_REGEX_INCLUDE: './templates/workspace_services/.*/user_resources/.*'
 
       - name: Shared Services Tags
         uses: github/super-linter/slim@v5.0.0
@@ -94,4 +94,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_TERRAFORM_TFLINT: true
           TERRAFORM_TFLINT_CONFIG_FILE: .tflint_shared_services.hcl
-          LINTER_REGEX_INCLUDE: './templates/shared_services/.*'
+          FILTER_REGEX_INCLUDE: './templates/shared_services/.*'

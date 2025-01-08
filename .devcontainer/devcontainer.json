@@ -2,6 +2,12 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.231.5/containers/ubuntu
 {
   "name": "AzureTRE-Deployment",
+  // Uncomment when debugging using Jetbrains
+  // "features": {
+  //   "ghcr.io/devcontainers/features/sshd:1": {
+  //       "version": "latest"
+  //   }
+  // },
   "build": {
     "context": "..",
     "dockerfile": "Dockerfile",
@@ -11,8 +17,8 @@
       // 		export DOCKER_GROUP_ID=$(getent group docker | awk -F ":" '{ print $3 }')
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
-      "OSS_REPO": "microsoft/AzureTRE",
-      "OSS_VERSION": "v0.19.1"
+      "UPSTREAM_REPO_URL": "https://github.com/microsoft/AzureTRE",
+      "UPSTREAM_REPO_VERSION": "main" // FIX BEFORE MERGE!!!!
     }
   },
   "runArgs": [
@@ -27,7 +33,7 @@
     // Mount docker socket for docker builds
     "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock",
     // Mounts the github cli login details from the host machine to the container (~/.config/gh/hosts.yml)
-    "type=bind,source=${env:HOME}${env:USERPROFILE}/.config,target=/home/vscode/.config"
+    "type=bind,source=${env:HOME}${env:USERPROFILE}/.config,target=/home/vscode/.config",
   ],
   "remoteUser": "vscode",
   "containerEnv": {
