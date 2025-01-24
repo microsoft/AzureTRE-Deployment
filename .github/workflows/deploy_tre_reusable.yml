@@ -87,6 +87,9 @@ jobs:
   deploy_management:
     name: Deploy Management
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Show inputs
@@ -151,7 +154,7 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -159,10 +162,10 @@ jobs:
           ref: ${{ inputs.prRef }}
 
       - name: Set up Docker BuildKit
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           environment: ${{ (vars.AZURE_ENVIRONMENT != '' && vars.AZURE_ENVIRONMENT) || 'AzureCloud' }}
@@ -240,7 +243,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -264,7 +267,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -288,7 +291,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -319,9 +322,11 @@ jobs:
           APPLICATION_ADMIN_CLIENT_ID: "${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}"
           APPLICATION_ADMIN_CLIENT_SECRET: "${{ secrets.APPLICATION_ADMIN_CLIENT_SECRET }}"
           STATEFUL_RESOURCES_LOCKED: "${{ github.ref == 'refs/heads/main' && inputs.prRef == '' && true || false }}"
+          KV_PURGE_PROTECTION_ENABLED: ${{ vars.KV_PURGE_PROTECTION_ENABLED || true }}
           CORE_APP_SERVICE_PLAN_SKU: ${{ vars.CORE_APP_SERVICE_PLAN_SKU }}
           RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE: ${{ vars.RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE }}
           RP_BUNDLE_VALUES: ${{ vars.RP_BUNDLE_VALUES }}
+          FIREWALL_SKU: ${{ vars.FIREWALL_SKU}}
 
       - name: API Healthcheck
         uses: ./.github/actions/devcontainer_run_command
@@ -352,8 +357,6 @@ jobs:
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azureml"}
           - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/innereye"}
-          - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/gitea"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
@@ -365,6 +368,8 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/databricks"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/ohdsi"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azuresql"}
           - {BUNDLE_TYPE: "user_resource",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-windowsvm"}
           - {BUNDLE_TYPE: "user_resource",
@@ -377,7 +382,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -388,7 +393,7 @@ jobs:
         uses: ./.github/actions/devcontainer_run_command
         with:
           # Although porter publish will build automatically, our makefile build target includes logic that should run
-          COMMAND: >-
+          COMMAND: |
             for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
@@ -423,7 +428,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -434,7 +439,7 @@ jobs:
         uses: ./.github/actions/devcontainer_run_command
         with:
           # Although porter publish will build automatically, our makefile build target includes logic that should run
-          COMMAND: >-
+          COMMAND: |
             for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
@@ -469,7 +474,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -478,7 +483,7 @@ jobs:
       - name: Register bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
-          COMMAND: >-
+          COMMAND: |
             for i in {1..3}; do make bundle-register DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 10; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
@@ -513,8 +518,6 @@ jobs:
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azureml"}
           - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/innereye"}
-          - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/gitea"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/mlflow"}
@@ -526,11 +529,13 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/databricks"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/ohdsi"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azuresql"}
         # Add your bundles here
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -539,7 +544,7 @@ jobs:
       - name: Register bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
-          COMMAND: >-
+          COMMAND: |
             for i in {1..3}; do make bundle-register DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 10; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
@@ -579,7 +584,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -588,7 +593,7 @@ jobs:
       - name: Register bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
-          COMMAND: >-
+          COMMAND: |
             for i in {1..3}; do make bundle-register DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 10; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
@@ -612,7 +617,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -633,6 +638,7 @@ jobs:
           TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
+          FIREWALL_SKU: ${{ vars.FIREWALL_SKU}}
 
       - name: State Store Migrations
         uses: ./.github/actions/devcontainer_run_command
@@ -659,7 +665,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
