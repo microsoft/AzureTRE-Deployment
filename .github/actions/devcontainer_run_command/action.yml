@@ -186,6 +186,7 @@ runs:
         docker run --rm --mount \
           "type=bind,src=${{ github.workspace }},dst=/workspaces/tre" \
           -v /var/run/docker.sock:/var/run/docker.sock \
+          -v "${SCRIPT_FILE}:./command.sh" \
           --workdir /workspaces/tre \
           --user vscode \
           -e TF_INPUT="0" \
@@ -250,7 +251,7 @@ runs:
           -e TF_VAR_firewall_sku=${{ inputs.FIREWALL_SKU }} \
           -e E2E_TESTS_NUMBER_PROCESSES="${{ inputs.E2E_TESTS_NUMBER_PROCESSES }}" \
           '${{ inputs.CI_CACHE_ACR_NAME }}${{ env.ACR_DOMAIN_SUFFIX }}/tredev:${{ inputs.DEVCONTAINER_TAG }}' \
-        bash -c "${SCRIPT_FILE}"
+        bash -c "./command.sh"
 
         # Clean up temporary script file
         rm "${SCRIPT_FILE}"
