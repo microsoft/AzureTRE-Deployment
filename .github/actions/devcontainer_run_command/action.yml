@@ -186,6 +186,7 @@ runs:
         docker run --rm --mount \
           "type=bind,src=${{ github.workspace }},dst=/workspaces/tre" \
           -v /var/run/docker.sock:/var/run/docker.sock \
+          -v "${SCRIPT_FILE}:/workspaces/tre/command.sh" \
           --workdir /workspaces/tre \
           --user vscode \
           -e TF_INPUT="0" \
