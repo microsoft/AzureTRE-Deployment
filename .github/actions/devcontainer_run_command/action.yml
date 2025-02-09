@@ -177,7 +177,10 @@ runs:
         # Write command to a command.sh script file
         echo "#!/bin/bash" > ./command.sh
         echo "set -x" >> ./command.sh
-        echo "${{ inputs.COMMAND }}" > ./command.sh
+        cat <<EOF >> ./command.sh
+        ${{ inputs.COMMAND }}
+        EOF
+
         chmod +x ./command.sh
 
         docker run --rm --mount \
