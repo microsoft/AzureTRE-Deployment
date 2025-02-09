@@ -121,7 +121,7 @@ jobs:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
           # then the default checkout will apply
-          ref: ${{ inputs.prRef }}
+          ref: ${{ github.ref }}
 
       - name: Set up Docker BuildKit
         uses: docker/setup-buildx-action@v3
