@@ -87,21 +87,19 @@ jobs:
             echo "Missing secret: AZURE_CREDENTIALS" && exit 1
           fi
 
-          bundle_name="${{ inputs.bundle_name }}"
-          bundle_type="${{ inputs.bundle_type }}"
-          workspace_service_name="${{ inputs.workspace_service_name }}"
-
           # if bundle_name is not set, exit with error
-          if [ -z "${bundle_name}" ]; then
+          if [ -z "${{ inputs.bundle_name }}" ]; then
             echo "Missing input: bundle_name" && exit 1
           fi
 
-          if [ -z "${bundle_type}" ]; then
+          # if bundle_type is not set, exit with error
+          if [ -z "${{ inputs.bundle_type }}" ]; then
             echo "Missing input: bundle_type" && exit 1
           fi
 
-          if [ $bundle_type = "user_resource" ]; then
-            if [ -z "${workspace_service_name}" ]; then
+          # if bundle_type is user_resource, then workspace_service_name is required, if not set, exit with error
+          if [ "${{ inputs.bundle_type }}" = "user_resource" ]; then
+            if [ -z "${{ inputs.workspace_service_name }}" ]; then
                echo "Missing input: workspace_service_name" && exit 1
             fi
           fi
@@ -231,32 +229,25 @@ jobs:
         with:
           COMMAND: |
             echo "Starting bundle registration"
-            bundle_name="${{ inputs.bundle_name }}"
-            bundle_type="${{ inputs.bundle_type }}"
-            workspace_service_name="${{ inputs.workspace_service_name }}"
-
-            echo "bundle_name: $bundle_name"
-            echo "bundle_type: $bundle_type"
-            echo "workspace_service_name: $workspace_service_name"
 
             if [ "${{ inputs.bundle_type }}" = "workspace" ]; then
-              echo "Registering workspace bundle $bundle_name of type $bundle_type"
+              echo "Registering workspace bundle ${{ inputs.bundle_name }}"
               make workspace_bundle BUNDLE="${{ inputs.bundle_name }}"
             fi
 
             if [ "${{ inputs.bundle_type }}" = "workspace_service" ]; then
-              echo "Registering workspace service bundle $bundle_name of type $bundle_type"
-              make workspace_service_bundle BUNDLE="${bundle_name}" WORKSPACE_SERVICE="${workspace_service_name}"
+              echo "Registering workspace service bundle ${{ inputs.bundle_name }}"
+              make workspace_service_bundle BUNDLE="${{ inputs.bundle_name }}"
             fi
 
             if [ "${{ inputs.bundle_type }}" = "shared_service" ]; then
-              echo "Registering shared service bundle $bundle_name of type $bundle_type"
-              make shared_service_bundle BUNDLE="${bundle_name}"
+              echo "Registering shared service bundle ${{ inputs.bundle_name }}"
+              make shared_service_bundle BUNDLE="${{ inputs.bundle_name }}"
             fi
 
             if [ "${{ inputs.bundle_type }}" = "user_resource" ]; then
-              echo "Registering user resource bundle $bundle_name of type $bundle_type into workspace service $workspace_service_name"
-              make user_resource_bundle BUNDLE="${bundle_name}" WORKSPACE_SERVICE="${workspace_service_name}"
+              echo "Registering user resource bundle ${{ inputs.bundle_name }} into workspace service ${{ inputs.workspace_service_name }}"
+              make user_resource_bundle BUNDLE="${{ inputs.bundle_name }}" WORKSPACE_SERVICE="${{ inputs.workspace_service_name }}"
             fi
 
             echo "Finished bundle registration"
