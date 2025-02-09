@@ -235,6 +235,11 @@ jobs:
             bundle_type="${{ inputs.bundle_type }}"
             workspace_service_name="${{ inputs.workspace_service_name }}"
 
+            echo "hard code values"
+            bundle_name="base"
+            bundle_type="workspace"
+            workspace_service_name=""
+
             echo "bundle_name: $bundle_name"
             echo "bundle_type: $bundle_type"
             echo "workspace_service_name: $workspace_service_name"
