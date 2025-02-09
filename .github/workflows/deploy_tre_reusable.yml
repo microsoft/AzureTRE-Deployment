@@ -348,6 +348,7 @@ jobs:
           RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE: ${{ vars.RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE }}
           RP_BUNDLE_VALUES: ${{ vars.RP_BUNDLE_VALUES }}
           FIREWALL_SKU: ${{ vars.FIREWALL_SKU}}
+          APP_GATEWAY_SKU: ${{ vars.APP_GATEWAY_SKU }}
 
       - name: API Healthcheck
         uses: ./.github/actions/devcontainer_run_command
@@ -414,7 +415,7 @@ jobs:
         uses: ./.github/actions/devcontainer_run_command
         with:
           # Although porter publish will build automatically, our makefile build target includes logic that should run
-          COMMAND: |
+          COMMAND: >-
             for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
@@ -460,7 +461,7 @@ jobs:
         uses: ./.github/actions/devcontainer_run_command
         with:
           # Although porter publish will build automatically, our makefile build target includes logic that should run
-          COMMAND: |
+          COMMAND: >-
             for i in {1..3}; do make bundle-build bundle-publish DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 30; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
@@ -504,7 +505,7 @@ jobs:
       - name: Register bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
-          COMMAND: |
+          COMMAND: >-
             for i in {1..3}; do make bundle-register DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 10; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
@@ -616,7 +617,7 @@ jobs:
       - name: Register bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
-          COMMAND: |
+          COMMAND: >-
             for i in {1..3}; do make bundle-register DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 10; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
