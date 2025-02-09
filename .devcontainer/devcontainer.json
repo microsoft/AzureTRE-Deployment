@@ -33,7 +33,7 @@
     // Mount docker socket for docker builds
     "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock",
     // Mounts the github cli login details from the host machine to the container (~/.config/gh/hosts.yml)
-    "type=bind,source=${env:HOME}${env:USERPROFILE}/.config,target=/home/vscode/.config",
+    "type=bind,source=${env:HOME}${env:USERPROFILE}/.config,target=/home/vscode/.config"
   ],
   "remoteUser": "vscode",
   "containerEnv": {
@@ -65,5 +65,6 @@
   // "forwardPorts": [],
   "features": {},
   // Run commands after the container is created.
-  "postCreateCommand": "./.devcontainer/scripts/post-create.sh"
+  "postCreateCommand": "./.devcontainer/scripts/post-create.sh",
+  "initializeCommand": ["./.devcontainer/scripts/initialize"]
 }
