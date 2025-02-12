@@ -21,12 +21,6 @@ inputs:
   AAD_TENANT_ID:
     description: "The Tenant Id where the App is registered and the Test User is registered for the E2E Tests."
     required: false
-  TEST_ACCOUNT_CLIENT_ID:
-    description: "The Test Automation Account Client Id used to interact with the API."
-    required: false
-  TEST_ACCOUNT_CLIENT_SECRET:
-    description: "The Test Automation Account Client Secret used to interact with the API."
-    required: false
   TRE_ID:
     description: "The TRE Id."
     required: false
@@ -219,8 +213,6 @@ runs:
           -e TRE_ID="${{ inputs.TRE_ID }}" \
           -e TF_VAR_tre_id="${{ inputs.TRE_ID }}" \
           -e TRE_URL="${{ env.TRE_URL }}" \
-          -e TEST_ACCOUNT_CLIENT_ID="${{ inputs.TEST_ACCOUNT_CLIENT_ID }}" \
-          -e TEST_ACCOUNT_CLIENT_SECRET="${{ inputs.TEST_ACCOUNT_CLIENT_SECRET }}" \
           -e IS_API_SECURED=${{ inputs.IS_API_SECURED }} \
           -e DOCKER_BUILDKIT=1 \
           -e TF_VAR_stateful_resources_locked=${{ inputs.STATEFUL_RESOURCES_LOCKED }} \

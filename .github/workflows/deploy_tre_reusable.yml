@@ -63,12 +63,6 @@ on:  # yamllint disable-line rule:truthy
       SWAGGER_UI_CLIENT_ID:
         description: ""
         required: true
-      TEST_ACCOUNT_CLIENT_ID:
-        description: ""
-        required: true
-      TEST_ACCOUNT_CLIENT_SECRET:
-        description: ""
-        required: true
       TRE_ID:
         description: ""
         required: true
@@ -131,12 +125,6 @@ jobs:
           fi
           if [ "${{ secrets.SWAGGER_UI_CLIENT_ID }}" == '' ]; then
             echo "Missing secret: SWAGGER_UI_CLIENT_ID" && exit 1
-          fi
-          if [ "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}" == '' ]; then
-            echo "Missing secret: TEST_ACCOUNT_CLIENT_ID" && exit 1
-          fi
-          if [ "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}" == '' ]; then
-            echo "Missing secret: TEST_ACCOUNT_CLIENT_SECRET" && exit 1
           fi
           if [ "${{ secrets.TRE_ID }}" == '' ]; then
             echo "Missing secret: TRE_ID" && exit 1
@@ -554,8 +542,6 @@ jobs:
           ACR_NAME: ${{ secrets.ACR_NAME }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
-          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
           BUNDLE_TYPE: ${{ matrix.BUNDLE_TYPE }}
@@ -603,8 +589,6 @@ jobs:
           ACR_NAME: ${{ secrets.ACR_NAME }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
-          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
           BUNDLE_TYPE: ${{ matrix.BUNDLE_TYPE }}
@@ -634,8 +618,6 @@ jobs:
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
-          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
           FIREWALL_SKU: ${{ vars.FIREWALL_SKU}}
@@ -650,8 +632,6 @@ jobs:
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
-          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
           TERRAFORM_STATE_CONTAINER_NAME: ${{ vars.TERRAFORM_STATE_CONTAINER_NAME }}
