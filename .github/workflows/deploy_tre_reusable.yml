@@ -57,28 +57,10 @@ on:  # yamllint disable-line rule:truthy
       MGMT_RESOURCE_GROUP_NAME:
         description: ""
         required: true
-      MS_TEAMS_WEBHOOK_URI:
-        description: ""
-        required: true
       MGMT_STORAGE_ACCOUNT_NAME:
         description: ""
         required: true
       SWAGGER_UI_CLIENT_ID:
-        description: ""
-        required: true
-      TEST_APP_ID:
-        description: ""
-        required: true
-      TEST_WORKSPACE_APP_ID:
-        description: ""
-        required: true
-      TEST_WORKSPACE_APP_SECRET:
-        description: ""
-        required: true
-      TEST_ACCOUNT_CLIENT_ID:
-        description: ""
-        required: true
-      TEST_ACCOUNT_CLIENT_SECRET:
         description: ""
         required: true
       TRE_ID:
@@ -99,6 +81,9 @@ jobs:
   deploy_management:
     name: Deploy Management
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Show inputs
@@ -141,21 +126,6 @@ jobs:
           if [ "${{ secrets.SWAGGER_UI_CLIENT_ID }}" == '' ]; then
             echo "Missing secret: SWAGGER_UI_CLIENT_ID" && exit 1
           fi
-          if [ "${{ secrets.TEST_APP_ID }}" == '' ]; then
-            echo "Missing secret: TEST_APP_ID" && exit 1
-          fi
-          if [ "${{ secrets.TEST_WORKSPACE_APP_ID }}" == '' ]; then
-            echo "Missing secret: TEST_WORKSPACE_APP_ID" && exit 1
-          fi
-          if [ "${{ secrets.TEST_WORKSPACE_APP_SECRET }}" == '' ]; then
-            echo "Missing secret: TEST_WORKSPACE_APP_SECRET" && exit 1
-          fi
-          if [ "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}" == '' ]; then
-            echo "Missing secret: TEST_ACCOUNT_CLIENT_ID" && exit 1
-          fi
-          if [ "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}" == '' ]; then
-            echo "Missing secret: TEST_ACCOUNT_CLIENT_SECRET" && exit 1
-          fi
           if [ "${{ secrets.TRE_ID }}" == '' ]; then
             echo "Missing secret: TRE_ID" && exit 1
           fi
@@ -172,7 +142,7 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -180,10 +150,10 @@ jobs:
           ref: ${{ inputs.prRef }}
 
       - name: Set up Docker BuildKit
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           environment: ${{ (vars.AZURE_ENVIRONMENT != '' && vars.AZURE_ENVIRONMENT) || 'AzureCloud' }}
@@ -240,10 +210,10 @@ jobs:
         run: |
           # shellcheck disable=SC2034,SC2015,SC2125
           for i in {1..3}; do
-            az acr login --name "${{ secrets.CI_CACHE_ACR_NAME }}" && ec=0 && break || ec=\$? && sleep 10
+            az acr login --name "${{ secrets.CI_CACHE_ACR_NAME }}" && ec=0 && break || ec="$?" && sleep 10
           done
           # shellcheck disable=SC2242
-          (exit \$ec)
+          (exit "$ec")
 
       - name: Push cached devcontainer
         run: docker image push ${{ env.CI_CACHE_ACR_URI }}/tredev:${{ inputs.DEVCONTAINER_TAG }}
@@ -261,7 +231,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -285,7 +255,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -309,7 +279,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -340,9 +310,12 @@ jobs:
           APPLICATION_ADMIN_CLIENT_ID: "${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}"
           APPLICATION_ADMIN_CLIENT_SECRET: "${{ secrets.APPLICATION_ADMIN_CLIENT_SECRET }}"
           STATEFUL_RESOURCES_LOCKED: "${{ github.ref == 'refs/heads/main' && inputs.prRef == '' && true || false }}"
+          KV_PURGE_PROTECTION_ENABLED: ${{ vars.KV_PURGE_PROTECTION_ENABLED || true }}
           CORE_APP_SERVICE_PLAN_SKU: ${{ vars.CORE_APP_SERVICE_PLAN_SKU }}
           RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE: ${{ vars.RESOURCE_PROCESSOR_NUMBER_PROCESSES_PER_INSTANCE }}
           RP_BUNDLE_VALUES: ${{ vars.RP_BUNDLE_VALUES }}
+          FIREWALL_SKU: ${{ vars.FIREWALL_SKU}}
+          APP_GATEWAY_SKU: ${{ vars.APP_GATEWAY_SKU }}
 
       - name: API Healthcheck
         uses: ./.github/actions/devcontainer_run_command
@@ -365,13 +338,13 @@ jobs:
           - {BUNDLE_TYPE: "workspace",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/base"}
           - {BUNDLE_TYPE: "workspace",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/unrestricted"}
+          - {BUNDLE_TYPE: "workspace",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/airlock-import-review"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azureml"}
-          - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/innereye"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/gitea"}
           - {BUNDLE_TYPE: "workspace_service",
@@ -382,6 +355,10 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/health-services"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/databricks"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/ohdsi"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azuresql"}
           - {BUNDLE_TYPE: "user_resource",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-windowsvm"}
           - {BUNDLE_TYPE: "user_resource",
@@ -394,7 +371,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -440,7 +417,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -486,7 +463,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -505,9 +482,6 @@ jobs:
           ACR_NAME: ${{ secrets.ACR_NAME }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TEST_APP_ID: "${{ secrets.TEST_APP_ID }}"
-          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
-          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
           BUNDLE_TYPE: ${{ matrix.BUNDLE_TYPE }}
@@ -523,13 +497,13 @@ jobs:
           - {BUNDLE_TYPE: "workspace",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/base"}
           - {BUNDLE_TYPE: "workspace",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/unrestricted"}
+          - {BUNDLE_TYPE: "workspace",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspaces/airlock-import-review"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azureml"}
-          - {BUNDLE_TYPE: "workspace_service",
-             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/innereye"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/gitea"}
           - {BUNDLE_TYPE: "workspace_service",
@@ -540,11 +514,15 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/health-services"}
           - {BUNDLE_TYPE: "workspace_service",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/databricks"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/ohdsi"}
+          - {BUNDLE_TYPE: "workspace_service",
+             BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/azuresql"}
         # Add your bundles here
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -553,7 +531,7 @@ jobs:
       - name: Register bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
-          COMMAND: >-
+          COMMAND: |
             for i in {1..3}; do make bundle-register DIR=${{ matrix.BUNDLE_DIR }}
             && ec=0 && break || ec=\$? && sleep 10; done; (exit \$ec)
           DEVCONTAINER_TAG: ${{ inputs.DEVCONTAINER_TAG }}
@@ -563,9 +541,6 @@ jobs:
           ACR_NAME: ${{ secrets.ACR_NAME }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TEST_APP_ID: "${{ secrets.TEST_APP_ID }}"
-          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
-          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
           BUNDLE_TYPE: ${{ matrix.BUNDLE_TYPE }}
@@ -594,7 +569,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -613,9 +588,6 @@ jobs:
           ACR_NAME: ${{ secrets.ACR_NAME }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TEST_APP_ID: "${{ secrets.TEST_APP_ID }}"
-          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
-          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
           BUNDLE_TYPE: ${{ matrix.BUNDLE_TYPE }}
@@ -628,7 +600,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
@@ -645,11 +617,9 @@ jobs:
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TEST_APP_ID: "${{ secrets.TEST_APP_ID }}"
-          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
-          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
+          FIREWALL_SKU: ${{ vars.FIREWALL_SKU}}
 
       - name: State Store Migrations
         uses: ./.github/actions/devcontainer_run_command
@@ -661,9 +631,6 @@ jobs:
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
-          TEST_APP_ID: "${{ secrets.TEST_APP_ID }}"
-          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
-          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
           TERRAFORM_STATE_CONTAINER_NAME: ${{ vars.TERRAFORM_STATE_CONTAINER_NAME }}
@@ -677,7 +644,7 @@ jobs:
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)

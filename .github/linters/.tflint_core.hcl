@@ -9,7 +9,11 @@ plugin "azurerm" {
     enabled = true
 }
 
+rule "terraform_typed_variables" {
+  enabled = false
+}
+
 rule "azurerm_resource_missing_tags" {
   enabled = true
-  tags = ["tre_id", "tre_workspace_id", "tre_workspace_service_id"]
+  tags = ["tre_id"]
 }

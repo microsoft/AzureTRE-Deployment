@@ -1,0 +1,272 @@
+---
+name: Register TRE Bundle
+
+# This workflow is intended to be used to register a TRE bundle into an existing TRE environment
+# by default, if not specified, the base workspace bundle will be registered into the TRE environment.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environmentName:
+        description: The name of the Github Action's environment this will deploy into
+        type: string
+        default: CICD
+        required: false
+      bundle_type:
+        description: The type of the bundle to register
+        type: choice
+        options:
+          - workspace
+          - workspace_service
+          - shared_service
+          - user_resource
+        required: true
+      bundle_name:
+        description: The name of the bundle to register
+        type: string
+        required: true
+      workspace_service_name:
+        description: The name of the workspace service to register user resources for
+        type: string
+        required: false
+      prRef:
+        description: The git ref to checkout
+        type: string
+        required: false
+
+jobs:
+  deploy_management:
+    name: Deploy Management
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+    environment: ${{ inputs.environmentName || 'CICD'}}
+    steps:
+      - name: Show inputs
+        run: |
+          echo "Inputs"
+          echo "======"
+          echo "prRHeadSha  : ${{ github.sha }}"
+          echo "ciGitRef    : ${{ github.ref }}"
+          echo "environment : ${{ inputs.environmentName || 'CICD'}}"
+          echo "prRef       : ${{ inputs.prRef }}"
+          echo AAD_TENANT_ID: ${{ secrets.AAD_TENANT_ID }}
+          echo ACR_NAME: ${{ secrets.ACR_NAME }}
+          echo API_CLIENT_ID: ${{ secrets.API_CLIENT_ID }}
+          echo "bundle_name   : ${{ inputs.bundle_name }}"
+          echo "bundle_type   : ${{ inputs.bundle_type }}"
+          echo "workspace_service_name: ${{ inputs.workspace_service_name }}"
+
+      - name: Check required values
+        id: check_required_values
+        run: |
+          if [ "${{ secrets.AAD_TENANT_ID }}" == '' ]; then
+            echo "Missing secret: AAD_TENANT_ID" && exit 1
+          fi
+          if [ "${{ secrets.ACR_NAME }}" == '' ]; then
+            echo "Missing secret: ACR_NAME" && exit 1
+          fi
+          if [ "${{ secrets.API_CLIENT_ID }}" == '' ]; then
+            echo "Missing secret: API_CLIENT_ID" && exit 1
+          fi
+          if [ "${{ secrets.API_CLIENT_SECRET }}" == '' ]; then
+            echo "Missing secret: API_CLIENT_SECRET" && exit 1
+          fi
+          if [ "${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}" == '' ]; then
+            echo "Missing secret: APPLICATION_ADMIN_CLIENT_ID" && exit 1
+          fi
+          if [ "${{ secrets.APPLICATION_ADMIN_CLIENT_SECRET }}" == '' ]; then
+            echo "Missing secret: APPLICATION_ADMIN_CLIENT_SECRET" && exit 1
+          fi
+          if [ "${{ secrets.MGMT_RESOURCE_GROUP_NAME }}" == '' ]; then
+            echo "Missing secret: MGMT_RESOURCE_GROUP_NAME" && exit 1
+          fi
+          if [ "${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}" == '' ]; then
+            echo "Missing secret: MGMT_STORAGE_ACCOUNT_NAME" && exit 1
+          fi
+          if [ "${{ secrets.TRE_ID }}" == '' ]; then
+            echo "Missing secret: TRE_ID" && exit 1
+          fi
+          if [ "${{ secrets.AZURE_CREDENTIALS }}" == '' ]; then
+            echo "Missing secret: AZURE_CREDENTIALS" && exit 1
+          fi
+
+          bundle_name="${{ inputs.bundle_name }}"
+          bundle_type="${{ inputs.bundle_type }}"
+          workspace_service_name="${{ inputs.workspace_service_name }}"
+
+          # if bundle_name is not set, exit with error
+          if [ -z "${bundle_name}" ]; then
+            echo "Missing input: bundle_name" && exit 1
+          fi
+
+          if [ -z "${bundle_type}" ]; then
+            echo "Missing input: bundle_type" && exit 1
+          fi
+
+          if [ $bundle_type = "user_resource" ]; then
+            if [ -z "${workspace_service_name}" ]; then
+               echo "Missing input: workspace_service_name" && exit 1
+            fi
+          fi
+      - name: Report check status start
+        if: github.sha != ''
+        uses: LouisBrunner/checks-action@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.sha }}
+          name: "Deploy PR / Run E2E Tests (Smoke)"
+          status: "in_progress"
+          details_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          # if the following values are missing (i.e. not triggered via comment workflow)
+          # then the default checkout will apply
+          ref: ${{ inputs.prRef }}
+
+      - name: Set up Docker BuildKit
+        uses: docker/setup-buildx-action@v3
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          environment: ${{ (vars.AZURE_ENVIRONMENT != '' && vars.AZURE_ENVIRONMENT) || 'AzureCloud' }}
+
+      - name: ACR Login
+        id: ci_cache_cr_login
+        # will fail if this is a new env which is expected
+        continue-on-error: true
+        run: az acr login --name "${{ secrets.ACR_NAME }}"
+
+      - name: Build new devcontainer
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          set -e
+
+          USER_UID=$(id -u)
+          USER_GID=$(id -g)
+          acr_domain_suffix=$(az cloud show --query suffixes.acrLoginServerEndpoint --output tsv)
+          CI_CACHE_ACR_URI=${{ secrets.ACR_NAME }}${acr_domain_suffix}
+          echo "CI_CACHE_ACR_URI=$CI_CACHE_ACR_URI" >> "$GITHUB_ENV"
+
+          docker_cache=()
+          if [ "${{ steps.ci_cache_cr_login.outcome }}" = "success" ]; then
+            docker_cache+=(--cache-from "$CI_CACHE_ACR_URI/tredev:latest")
+          fi
+
+          docker build . "${docker_cache[@]}" \
+            -t "tredev:latest" -f ".devcontainer/Dockerfile" \
+            --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg USER_UID="${USER_UID}" --build-arg USER_GID="${USER_GID}"
+
+          docker image tag tredev:"latest" \
+            "$CI_CACHE_ACR_URI/tredev:latest"
+
+      - name: Deploy management
+        uses: ./.github/actions/devcontainer_run_command
+        with:
+          COMMAND: "make bootstrap mgmt-deploy"
+          DEVCONTAINER_TAG: latest
+          CI_CACHE_ACR_NAME: ${{ secrets.ACR_NAME}}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
+          TRE_ID: ${{ secrets.TRE_ID }}
+          LOCATION: "uksouth"
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+          TERRAFORM_STATE_CONTAINER_NAME: ${{ vars.TERRAFORM_STATE_CONTAINER_NAME }}
+          MGMT_RESOURCE_GROUP_NAME: ${{ secrets.MGMT_RESOURCE_GROUP_NAME }}
+          MGMT_STORAGE_ACCOUNT_NAME: ${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}
+
+      - name: ACR Login
+        # failure in the first attempt indicates a new ACR, so we need to try again after it's been created
+        if: steps.ci_cache_cr_login.outcome != 'success'
+        run: |
+          # shellcheck disable=SC2034,SC2015,SC2125
+          for i in {1..3}; do
+            az acr login --name "${{ secrets.ACR_NAME }}" && ec=0 && break || ec="$?" && sleep 10
+          done
+          # shellcheck disable=SC2242
+          (exit "$ec")
+
+      - name: Push cached devcontainer
+        run: docker image push ${{ env.CI_CACHE_ACR_URI }}/tredev:latest
+
+  prepare-not-main:
+    name: Preparation
+    runs-on: ubuntu-latest
+    if: |
+      github.ref != 'refs/heads/main'
+    outputs:
+      refid: ${{ steps.run-id.outputs.refid }}
+    steps:
+      - id: run-id
+        name: Get run id
+        run: |
+          set -o errexit
+          set -o pipefail
+          set -o nounset
+          # Debug output for checking SHA used in checks-action
+          echo "git SHA:    $(git rev-parse --abbrev-ref HEAD)"
+          echo "git ref:    $(git rev-parse HEAD)"
+          echo "github sha: ${GITHUB_SHA}"
+          echo "github ref: ${GITHUB_REF}"
+          REFID=$(echo "${GITHUB_REF}" | shasum | cut -c1-8)
+          echo "using id of: ${REFID} for GitHub Ref: ${GITHUB_REF}"
+          echo "refid=${REFID}" >> "$GITHUB_OUTPUT"
+  register_bundle:
+    name: Register Bundle
+    runs-on: ubuntu-latest
+    needs: [deploy_management, prepare-not-main]
+    environment: ${{ inputs.environmentName || 'CICD'}}
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Register Bundle
+        uses: ./.github/actions/devcontainer_run_command
+        with:
+          COMMAND: |
+            echo "Starting bundle registration"
+            bundle_name="${{ inputs.bundle_name }}"
+            bundle_type="${{ inputs.bundle_type }}"
+            workspace_service_name="${{ inputs.workspace_service_name }}"
+
+            if [ $bundle_type = "workspace" ]; then
+              echo "Registering workspace bundle $bundle_name of type $bundle_type"
+              make workspace_bundle BUNDLE="${bundle_name}"
+            fi
+
+            if [ $bundle_type = "workspace_service" ]; then
+              echo "Registering workspace service bundle $bundle_name of type $bundle_type"
+              make workspace_service_bundle BUNDLE="${bundle_name}" WORKSPACE_SERVICE="${workspace_service_name}"
+            fi
+
+            if [ $bundle_type = "shared_service" ]; then
+              echo "Registering shared service bundle $bundle_name of type $bundle_type"
+              make shared_service_bundle BUNDLE="${bundle_name}"
+            fi
+
+            if [ $bundle_type = "user_resource" ]; then
+              echo "Registering user resource bundle $bundle_name of type $bundle_type into workspace service $workspace_service_name"
+              make user_resource_bundle BUNDLE="${bundle_name}" WORKSPACE_SERVICE="${workspace_service_name}"
+            fi
+
+            echo "Finished bundle registration"
+          DEVCONTAINER_TAG: ${{ needs.prepare-not-main.outputs.refid }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
+          CI_CACHE_ACR_NAME: ${{ secrets.ACR_NAME}}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+          API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
+          AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
+          TRE_ID: ${{ secrets.TRE_ID }}
+          LOCATION: ${{ vars.LOCATION }}
