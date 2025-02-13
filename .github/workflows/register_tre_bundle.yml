@@ -227,30 +227,7 @@ jobs:
       - name: Register Bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
-          COMMAND: |
-            echo "Starting bundle registration"
-
-            if [ "${{ inputs.bundle_type }}" = "workspace" ]; then
-              echo "Registering workspace bundle ${{ inputs.bundle_name }}"
-              make workspace_bundle BUNDLE="${{ inputs.bundle_name }}"
-            fi
-
-            if [ "${{ inputs.bundle_type }}" = "workspace_service" ]; then
-              echo "Registering workspace service bundle ${{ inputs.bundle_name }}"
-              make workspace_service_bundle BUNDLE="${{ inputs.bundle_name }}"
-            fi
-
-            if [ "${{ inputs.bundle_type }}" = "shared_service" ]; then
-              echo "Registering shared service bundle ${{ inputs.bundle_name }}"
-              make shared_service_bundle BUNDLE="${{ inputs.bundle_name }}"
-            fi
-
-            if [ "${{ inputs.bundle_type }}" = "user_resource" ]; then
-              echo "Registering user resource bundle ${{ inputs.bundle_name }} into workspace service ${{ inputs.workspace_service_name }}"
-              make user_resource_bundle BUNDLE="${{ inputs.bundle_name }}" WORKSPACE_SERVICE="${{ inputs.workspace_service_name }}"
-            fi
-
-            echo "Finished bundle registration"
+          COMMAND: "make bundle BUNDLE=${{ inputs.bundle_name }} BUNDLE_TYPE=${{ inputs.bundle_type }} WORKSPACE_SERVICE=${{ inputs.workspace_service_name }}"
           DEVCONTAINER_TAG: ${{ needs.prepare-not-main.outputs.refid }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
