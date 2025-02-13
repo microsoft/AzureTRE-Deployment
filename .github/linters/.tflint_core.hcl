@@ -15,5 +15,5 @@ rule "terraform_typed_variables" {
 
 rule "azurerm_resource_missing_tags" {
   enabled = true
-  tags = ["tre_id", "tre_workspace_id"]
+  tags = ["tre_id"]
 }
