@@ -10,7 +10,7 @@ upstream_repo_version="$2"
 upstream_home="$3"
 archive=/tmp/AzureTRE.tar.gz
 
-# Check if a fourth argument is provided
+# Check if a fourth argument is provided (This should be a github token)
 if [[ $# -eq 4 ]]
 then
     TOKEN="$4"
@@ -26,9 +26,7 @@ mkdir -p "$upstream_home"
 tar -xzf "$archive" -C "$upstream_home" --strip-components=1
 rm "$archive"
 
-
-
-echo "${oss_repo}" > "$upstream_home/repository.txt"
-echo "${oss_version}" > "$upstream_home/version.txt"
+echo "${upstream_repo_url}" > "$upstream_home/repository.txt"
+echo "${upstream_repo_version}" > "$upstream_home/version.txt"
 
 
