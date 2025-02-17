@@ -18,7 +18,8 @@
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
       "UPSTREAM_REPO_URL": "https://github.com/microsoft/AzureTRE",
-      "UPSTREAM_REPO_VERSION": "v0.20.0"
+      "UPSTREAM_REPO_VERSION": "v0.20.0",
+      "GITHUB_TOKEN": ""
     }
   },
   "runArgs": [
