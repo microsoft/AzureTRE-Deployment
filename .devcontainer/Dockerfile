@@ -106,7 +106,8 @@ COPY .devcontainer/scripts/install-azure-tre-oss.sh .devcontainer/devcontainer.j
 # hadolint ignore=DL3004
 RUN upstream_repo_url_in_json=$(grep -oP '(?<="UPSTREAM_REPO_URL": ")[^"]*' /tmp/devcontainer.json) \
     && upstream_repo_version_in_json=$(grep -oP '(?<="UPSTREAM_REPO_VERSION": ")[^"]*' /tmp/devcontainer.json) \
-    && /tmp/install-azure-tre-oss.sh "${UPSTREAM_REPO_URL:-$upstream_repo_url_in_json}" "${UPSTREAM_REPO_VERSION:-$upstream_repo_version_in_json}" "${AZURETRE_HOME}"  \
+    && GITHUB_TOKEN=$(grep -oP '(?<="GITHUB_TOKEN": ")[^"]*' /tmp/devcontainer.json) \
+    && /tmp/install-azure-tre-oss.sh "${UPSTREAM_REPO_URL:-$upstream_repo_url_in_json}" "${UPSTREAM_REPO_VERSION:-$upstream_repo_version_in_json}" "${AZURETRE_HOME}" "${GITHUB_TOKEN}" \
     && sudo chown -R $USERNAME ${AZURETRE_HOME}
 
 # Install tre-cli
