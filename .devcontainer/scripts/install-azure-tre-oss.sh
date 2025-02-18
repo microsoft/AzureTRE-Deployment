@@ -5,13 +5,16 @@ set -o nounset
 # Uncomment this line to see each command for debugging (careful: this will show secrets!)
 # set -o xtrace
 
+
+# Assign arguments to variables
 upstream_repo="$1"
 upstream_repo_version="$2"
 upstream_home="$3"
+github_token="${4:-}"
 archive=/tmp/AzureTRE.tar.gz
 
-# Check if a fourth argument is provided (This should be a github token)
-if [[ $# -eq 4 ]]
+# Check if a fourth argument is provided
+if [[ -n "$github_token" ]];
 then
     TOKEN="$4"
     echo "Using Auth"
@@ -28,5 +31,3 @@ rm "$archive"
 
 echo "${upstream_repo}" > "$upstream_home/repository.txt"
 echo "${upstream_repo_version}" > "$upstream_home/version.txt"
-
-
