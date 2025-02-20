@@ -19,7 +19,7 @@ then
     TOKEN="$4"
     echo "Using Auth"
     curl -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
-    https://api.github.com/repos/$upstream_repo/tarball/$upstream_repo_version --output "$archive"
+    https://api.github.com/repos/"$upstream_repo"/tarball/"$upstream_repo_version" --output "$archive"
 
 else
     wget -O "$archive" "http://github.com/${upstream_repo}/archive/${upstream_repo_version}.tar.gz" --progress=dot:giga
