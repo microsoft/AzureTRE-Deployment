@@ -18,7 +18,7 @@
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
       "UPSTREAM_REPO": "microsoft/AzureTRE",
-      "UPSTREAM_REPO_VERSION": "v0.20.0",
+      "UPSTREAM_REPO_VERSION": "v0.21.0",
       "GITHUB_TOKEN": ""
     }
   },
@@ -67,5 +67,7 @@
   "features": {},
   // Run commands after the container is created.
   "postCreateCommand": "./.devcontainer/scripts/post-create.sh",
-  "initializeCommand": ["./.devcontainer/scripts/initialize"]
+  "initializeCommand": [
+    "./.devcontainer/scripts/initialize"
+  ]
 }

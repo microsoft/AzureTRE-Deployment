@@ -11,10 +11,10 @@ ARG INTERACTIVE="false"
 ARG USER_UID=1000
 ARG USERNAME=vscode
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
 # make user ID match user ID on host machine
 RUN usermod --uid $USER_UID $USERNAME
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Set env for tracking that we're running in a devcontainer
 ENV DEVCONTAINER=true
@@ -66,7 +66,7 @@ RUN export PORTER_VERSION=${PORTER_VERSION} \
     PORTER_HOME=${PORTER_HOME_V1} \
     && /tmp/porter-v1.sh
 
-ENV PATH=${PORTER_HOME_V1}:$PATH
+ENV PATH ${PORTER_HOME_V1}:$PATH
 
 # Install azure-cli
 ARG AZURE_CLI_VERSION=2.67.0-1~bookworm
