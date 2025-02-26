@@ -11,8 +11,8 @@
       // 		export DOCKER_GROUP_ID=$(getent group docker | awk -F ":" '{ print $3 }')
       "DOCKER_GROUP_ID": "${localEnv:DOCKER_GROUP_ID}",
       "INTERACTIVE": "true",
-      "OSS_REPO": "microsoft/AzureTRE",
-      "OSS_VERSION": "v0.19.1"
+      "UPSTREAM_REPO_URL": "https://github.com/microsoft/AzureTRE",
+      "UPSTREAM_REPO_VERSION": "tamirkamara/4148-cmk-in-gh-actions"
     }
   },
   "runArgs": [

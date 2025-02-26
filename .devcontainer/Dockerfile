@@ -94,15 +94,14 @@ COPY ./.devcontainer/scripts/gh.sh /tmp/
 RUN if [ "${INTERACTIVE}" = "true" ]; then /tmp/gh.sh; fi
 
 # Install AzureTRE OSS
-ARG OSS_REPO
-ARG OSS_VERSION
+ARG UPSTREAM_REPO_URL
+ARG UPSTREAM_REPO_VERSION
 ENV AZURETRE_HOME=/home/$USERNAME/AzureTRE
 COPY .devcontainer/scripts/install-azure-tre-oss.sh .devcontainer/devcontainer.json /tmp/
 # hadolint ignore=DL3004
-RUN oss_repo_in_json=$(grep -oP '(?<="OSS_REPO": ")[^"]*' /tmp/devcontainer.json) \
-    && oss_version_in_json=$(grep -oP '(?<="OSS_VERSION": ")[^"]*' /tmp/devcontainer.json) \
-    && /tmp/install-azure-tre-oss.sh "${OSS_REPO:-$oss_repo_in_json}" "${OSS_VERSION:-$oss_version_in_json}" "${AZURETRE_HOME}"  \
-    && sudo chown -R $USERNAME ${AZURETRE_HOME}
+RUN upstream_repo_url_in_json=$(grep -oP '(?<="UPSTREAM_REPO_URL": ")[^"]*' /tmp/devcontainer.json) \
+&& upstream_repo_version_in_json=$(grep -oP '(?<="UPSTREAM_REPO_VERSION": ")[^"]*' /tmp/devcontainer.json) \
+&& /tmp/install-azure-tre-oss.sh "${UPSTREAM_REPO_URL:-$upstream_repo_url_in_json}" "${UPSTREAM_REPO_VERSION:-$upstream_repo_version_in_json}" "${AZURETRE_HOME}"  \
 
 # Install tre-cli
 WORKDIR /"${AZURETRE_HOME}"/cli

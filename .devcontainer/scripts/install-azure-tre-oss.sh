@@ -6,16 +6,16 @@ set -o nounset
 # set -o xtrace
 
 
-oss_repo="$1"
-oss_version="$2"
-oss_home="$3"
+upstream_repo_url="$1"
+upstream_repo_version="$2"
+upstream_home="$3"
 archive=/tmp/AzureTRE.tar.gz
 
-wget -O "$archive" "http://github.com/${oss_repo}/archive/${oss_version}.tar.gz" --progress=dot:giga
+wget -O "$archive" "${upstream_repo_url}/archive/${upstream_repo_version}.tar.gz" --progress=dot:giga
 
-mkdir -p "$oss_home"
-tar -xzf "$archive" -C "$oss_home" --strip-components=1
+mkdir -p "$upstream_home"
+tar -xzf "$archive" -C "$upstream_home" --strip-components=1
 rm "$archive"
 
-echo "${oss_repo}" > "$oss_home/repository.txt"
-echo "${oss_version}" > "$oss_home/version.txt"
+echo "${upstream_repo_url}" > "$upstream_home/repository.txt"
+echo "${upstream_repo_version}" > "$upstream_home/version.txt"
