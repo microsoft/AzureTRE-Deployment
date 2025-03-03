@@ -11,10 +11,10 @@ ARG INTERACTIVE="false"
 ARG USER_UID=1000
 ARG USERNAME=vscode
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
 # make user ID match user ID on host machine
 RUN usermod --uid $USER_UID $USERNAME
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Set env for tracking that we're running in a devcontainer
 ENV DEVCONTAINER=true
@@ -66,7 +66,7 @@ RUN export PORTER_VERSION=${PORTER_VERSION} \
     PORTER_HOME=${PORTER_HOME_V1} \
     && /tmp/porter-v1.sh
 
-ENV PATH=${PORTER_HOME_V1}:$PATH
+ENV PATH ${PORTER_HOME_V1}:$PATH
 
 # Install azure-cli
 ARG AZURE_CLI_VERSION=2.67.0-1~bookworm
@@ -99,14 +99,18 @@ COPY ./.devcontainer/scripts/gh.sh /tmp/
 RUN if [ "${INTERACTIVE}" = "true" ]; then /tmp/gh.sh; fi
 
 # Install AzureTRE OSS
-ARG UPSTREAM_REPO_URL
+ARG UPSTREAM_REPO
 ARG UPSTREAM_REPO_VERSION
+ARG GITHUB_TOKEN
 ENV AZURETRE_HOME=/home/$USERNAME/AzureTRE
 COPY .devcontainer/scripts/install-azure-tre-oss.sh .devcontainer/devcontainer.json /tmp/
 # hadolint ignore=DL3004
-RUN upstream_repo_url_in_json=$(grep -oP '(?<="UPSTREAM_REPO_URL": ")[^"]*' /tmp/devcontainer.json) \
+RUN upstream_repo_in_json=$(grep -oP '(?<="UPSTREAM_REPO": ")[^"]*' /tmp/devcontainer.json) \
     && upstream_repo_version_in_json=$(grep -oP '(?<="UPSTREAM_REPO_VERSION": ")[^"]*' /tmp/devcontainer.json) \
-    && /tmp/install-azure-tre-oss.sh "${UPSTREAM_REPO_URL:-$upstream_repo_url_in_json}" "${UPSTREAM_REPO_VERSION:-$upstream_repo_version_in_json}" "${AZURETRE_HOME}"  \
+    && GITHUB_TOKEN=$(grep -oP '(?<="GITHUB_TOKEN": ")[^"]*' /tmp/devcontainer.json) \
+    && /tmp/install-azure-tre-oss.sh "${UPSTREAM_REPO:-$upstream_repo_in_json}" \
+                                      "${UPSTREAM_REPO_VERSION:-$upstream_repo_version_in_json}" \
+                                      "${AZURETRE_HOME}" "${GITHUB_TOKEN}" \
     && sudo chown -R $USERNAME ${AZURETRE_HOME}
 
 # Install tre-cli
