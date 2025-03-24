@@ -228,7 +228,7 @@ jobs:
         uses: ./.github/actions/devcontainer_run_command
         with:
           COMMAND: "make bundle BUNDLE=${{ inputs.bundle_name }} BUNDLE_TYPE=${{ inputs.bundle_type }} WORKSPACE_SERVICE=${{ inputs.workspace_service_name }}"
-          DEVCONTAINER_TAG: ${{ needs.prepare-not-main.outputs.refid }}
+          DEVCONTAINER_TAG: 'latest'
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
           CI_CACHE_ACR_NAME: ${{ secrets.ACR_NAME}}
