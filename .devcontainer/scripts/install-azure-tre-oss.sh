@@ -6,16 +6,28 @@ set -o nounset
 # set -o xtrace
 
 
-oss_repo="$1"
-oss_version="$2"
-oss_home="$3"
+# Assign arguments to variables
+upstream_repo="$1"
+upstream_repo_version="$2"
+upstream_home="$3"
+github_token="${4:-}"
 archive=/tmp/AzureTRE.tar.gz
 
-wget -O "$archive" "http://github.com/${oss_repo}/archive/${oss_version}.tar.gz" --progress=dot:giga
+# Check if a fourth argument is provided
+if [[ -n "$github_token" ]];
+then
+    TOKEN="$4"
+    echo "Using Auth"
+    curl -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+    https://api.github.com/repos/"$upstream_repo"/tarball/"$upstream_repo_version" --output "$archive"
 
-mkdir -p "$oss_home"
-tar -xzf "$archive" -C "$oss_home" --strip-components=1
+else
+    wget -O "$archive" "http://github.com/${upstream_repo}/archive/${upstream_repo_version}.tar.gz" --progress=dot:giga
+fi
+
+mkdir -p "$upstream_home"
+tar -xzf "$archive" -C "$upstream_home" --strip-components=1
 rm "$archive"
 
-echo "${oss_repo}" > "$oss_home/repository.txt"
-echo "${oss_version}" > "$oss_home/version.txt"
+echo "${upstream_repo}" > "$upstream_home/repository.txt"
+echo "${upstream_repo_version}" > "$upstream_home/version.txt"
