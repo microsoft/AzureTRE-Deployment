@@ -237,3 +237,6 @@ jobs:
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
+          TEST_ACCOUNT_CLIENT_ID: ${{ secrets.TEST_ACCOUNT_CLIENT_ID }}
+          TEST_ACCOUNT_CLIENT_SECRET: ${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}
+          
