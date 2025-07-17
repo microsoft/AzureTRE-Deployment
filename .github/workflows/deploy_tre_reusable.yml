@@ -674,7 +674,6 @@ jobs:
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
-          FIREWALL_SKU: ${{ vars.FIREWALL_SKU}}
 
       - name: State Store Migrations
         uses: ./.github/actions/devcontainer_run_command
