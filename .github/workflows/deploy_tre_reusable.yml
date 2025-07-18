@@ -1,5 +1,6 @@
 ---
 name: Deploy Azure TRE Reusable
+# yamllint disable rule:line-length rule:comments-indentation
 
 on: # yamllint disable-line rule:truthy
   workflow_call:
@@ -236,7 +237,8 @@ jobs:
             az acr login --name "${{ secrets.CI_CACHE_ACR_NAME }}" && ec=0 && break || ec="$?" && sleep 10
           done
           if [ "$ec" != 0 ]; then
-            echo "::error::Failed to login to ACR after 3 attempts. Make sure to run the pipleline on the main branch first."
+            echo "::error::Failed to login to ACR after 3 attempts. Make sure to run the" \
+                 "pipleline on the main branch first."
           fi
           # shellcheck disable=SC2242
           (exit "$ec")
@@ -401,7 +403,7 @@ jobs:
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-export-reviewvm"}
           - {BUNDLE_TYPE: "user_resource",
              BUNDLE_DIR: "\\${AZURETRE_HOME}/templates/workspace_services/guacamole/user_resources/guacamole-azure-import-reviewvm"}
-          # Add your custom Bundles below this
+            # Add your custom Bundles below this
     environment: ${{ inputs.environmentName }}
     steps:
       - name: Checkout
