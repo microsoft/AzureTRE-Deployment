@@ -151,6 +151,14 @@ inputs:
     description: "When set to true removes the need for users to manually grant consent when creating new workspaces"
     required: false
     default: "false"
+  ENABLE_DNS_POLICY:
+    description: "Enable the DNS security policy"
+    required: false
+    default: "false"
+  ALLOWED_DNS:
+    description: "Add allowed domain name to the DNS security policy"
+    required: false
+    default: "[]"
 
 runs:
   using: composite
