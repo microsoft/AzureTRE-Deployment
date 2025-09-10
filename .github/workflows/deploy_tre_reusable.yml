@@ -75,10 +75,10 @@ on: # yamllint disable-line rule:truthy
         description: ""
         required: true
       TEST_ACCOUNT_CLIENT_ID:
-        description: ""
+        description: Client ID for test automation account used for unattended bundle registration
         required: true
       TEST_ACCOUNT_CLIENT_SECRET:
-        description: ""
+        description: Client secret for test automation account used for unattended bundle registration
         required: true
       TRE_ID:
         description: ""
