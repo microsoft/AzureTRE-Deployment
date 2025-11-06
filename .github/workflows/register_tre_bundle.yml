@@ -80,6 +80,9 @@ jobs:
           if [ "${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}" == '' ]; then
             echo "Missing secret: MGMT_STORAGE_ACCOUNT_NAME" && exit 1
           fi
+          if ! [[ "${{ secrets.MGMT_STORAGE_ACCOUNT_NAME }}" =~ ^[a-z0-9]{3,24}$ ]]; then
+            echo "Invalid secret: MGMT_STORAGE_ACCOUNT_NAME must be between 3 and 24 characters and only lowercase letters (a–z) and numbers (0–9)" && exit 1
+          fi
           if [ "${{ secrets.TRE_ID }}" == '' ]; then
             echo "Missing secret: TRE_ID" && exit 1
           fi
