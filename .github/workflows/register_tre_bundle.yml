@@ -37,6 +37,7 @@ jobs:
     permissions:
       checks: write
       contents: read
+      id-token: write
     environment: ${{ inputs.environmentName || 'CICD'}}
     steps:
       - name: Show inputs
@@ -83,8 +84,8 @@ jobs:
           if [ "${{ secrets.TRE_ID }}" == '' ]; then
             echo "Missing secret: TRE_ID" && exit 1
           fi
-          if [ "${{ secrets.AZURE_CREDENTIALS }}" == '' ]; then
-            echo "Missing secret: AZURE_CREDENTIALS" && exit 1
+          if [ "${{ secrets.AZURE_CLIENT_ID }}" == '' ]; then
+            echo "Missing secret: AZURE_CLIENT_ID" && exit 1
           fi
 
           # if bundle_name is not set, exit with error
@@ -127,7 +128,9 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           environment: ${{ (vars.AZURE_ENVIRONMENT != '' && vars.AZURE_ENVIRONMENT) || 'AzureCloud' }}
 
       - name: ACR Login
@@ -166,7 +169,9 @@ jobs:
           COMMAND: "make bootstrap mgmt-deploy"
           DEVCONTAINER_TAG: latest
           CI_CACHE_ACR_NAME: ${{ secrets.ACR_NAME}}
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}
@@ -220,6 +225,7 @@ jobs:
       checks: write
       contents: read
       pull-requests: write
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -229,7 +235,9 @@ jobs:
         with:
           COMMAND: "make bundle BUNDLE=${{ inputs.bundle_name }} BUNDLE_TYPE=${{ inputs.bundle_type }} WORKSPACE_SERVICE=${{ inputs.workspace_service_name }}"
           DEVCONTAINER_TAG: 'latest'
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
           CI_CACHE_ACR_NAME: ${{ secrets.ACR_NAME}}
           ACR_NAME: ${{ secrets.ACR_NAME }}

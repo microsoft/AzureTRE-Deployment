@@ -30,6 +30,7 @@ jobs:
       checks: write
       contents: read
       pull-requests: write
+      id-token: write
     with:
       ciGitRef: ${{ github.ref }}
       e2eTestsCustomSelector: >-
@@ -41,7 +42,9 @@ jobs:
     secrets:
       AAD_TENANT_ID: ${{ secrets.AAD_TENANT_ID }}
       ACR_NAME: ${{ secrets.ACR_NAME }}
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       API_CLIENT_ID: ${{ secrets.API_CLIENT_ID }}
       API_CLIENT_SECRET: ${{ secrets.API_CLIENT_SECRET }}
       APPLICATION_ADMIN_CLIENT_ID: ${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}

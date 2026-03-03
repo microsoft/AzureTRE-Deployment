@@ -11,6 +11,9 @@ jobs:
   clean:
     name: Clean
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     environment: Dev
     timeout-minutes: 30
     steps:
@@ -23,7 +26,9 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           environment: ${{ (secrets.AZURE_ENVIRONMENT != '' && secrets.AZURE_ENVIRONMENT) || 'AzureCloud' }}
 
       - name: Run clean
