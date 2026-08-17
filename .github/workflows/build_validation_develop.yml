@@ -13,38 +13,79 @@ concurrency:
   group: "${{ github.workflow }}-${{ github.head_ref }}"
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read # For paths-filter and super-linter
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           # Full git history is needed to get a proper list of
           # changed files within `super-linter`
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          filters: |
+            terraform:
+              # our Terraform uses more than just *.tf files, so need to check changes in the folder
+              - '**/terraform/**/*'
+            core:
+              - 'core/**/*'
+            core_version:
+              - 'core/version.txt'
+            docs:
+              - 'docs/**/*'
+
+            terraform_core:
+              - core/**/terraform/**/*.tf
+
+            terraform_workspaces:
+              - templates/workspaces/**/terraform/**/*.tf
+
+            terraform_shared_services:
+              - templates/shared_services/**/terraform/**/*.tf
+
+            terraform_workspace_services:
+              - templates/workspace_services/**/terraform/**/*.tf
+
+      - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4.0.0
+        if: ${{ steps.filter.outputs.terraform == 'true' }}
         with:
           terraform_version: "1.14.3"
+
       - name: Terraform format check
+        if: ${{ steps.filter.outputs.terraform == 'true' }}
         run: terraform fmt -check -recursive
 
       # find all terraform folders and run validate to catch
       # configuration errors
       - name: Terraform validation
+        if: ${{ steps.filter.outputs.terraform == 'true' }}
         run: |
           find . -type d -name 'terraform' -not -path '*cnab*' -print0 \
           | xargs -0 -I{} sh -c 'echo "***** Validating: {} *****"; \
           terraform -chdir={} init -backend=false; terraform -chdir={} validate'
 
+      - name: "Stale version: core"
+        if: ${{ steps.filter.outputs.core == 'true' &&
+          steps.filter.outputs.core_version == 'false' }}
+        run: echo "::error::Code update without version change" && exit 1
+
       - name: Lint code base
         # the slim image is 2GB smaller and we don't use the extra stuff
         # Moved this after the Terraform checks above due something similar to this issue:
         # https://github.com/github/super-linter/issues/2433
-        uses: github/super-linter/slim@v5.0.0
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -53,13 +94,37 @@ jobs:
           VALIDATE_PYTHON_FLAKE8: true
           VALIDATE_YAML: true
           VALIDATE_TERRAFORM_TFLINT: true
+          VALIDATE_JAVA: true
+          JAVA_FILE_NAME: checkstyle.xml
           VALIDATE_BASH: true
           VALIDATE_BASH_EXEC: true
           VALIDATE_GITHUB_ACTIONS: true
           VALIDATE_DOCKERFILE_HADOLINT: true
+          VALIDATE_TSX: true
+          VALIDATE_TYPESCRIPT_ES: true
+          TYPESCRIPT_ES_CONFIG_FILE: ../../ui/app/eslint.config.js
+          TSX_CONFIG_FILE: ../../ui/app/eslint.config.js
+
+      - name: Docs validation
+        if: ${{ steps.filter.outputs.docs == 'true' }}
+        run: |
+          pip install -r docs/requirements.txt
+          mkdocs build --strict
+
+      - name: Core Tags
+        if: ${{ steps.filter.outputs.terraform_core == 'true' }}
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_TERRAFORM_TFLINT: true
+          TERRAFORM_TFLINT_CONFIG_FILE: .tflint_core.hcl
+          FILTER_REGEX_INCLUDE: "./core/.*"
 
       - name: Workspace Tags
-        uses: github/super-linter/slim@v5.0.0
+        if: ${{ steps.filter.outputs.terraform_workspaces == 'true' }}
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -69,18 +134,20 @@ jobs:
           FILTER_REGEX_INCLUDE: "./templates/workspaces/.*"
 
       - name: Workspace Services Tags
-        uses: github/super-linter/slim@v5.0.0
+        if: ${{ steps.filter.outputs.terraform_workspace_services == 'true' }}
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_TERRAFORM_TFLINT: true
           TERRAFORM_TFLINT_CONFIG_FILE: .tflint_workspace_services.hcl
-          FILTER_REGEX_INCLUDE: "./templates/workspaces/.*"
+          FILTER_REGEX_INCLUDE: "./templates/workspace_services/.*"
           FILTER_REGEX_EXCLUDE: ".*user_resource.*"
 
       - name: User Resources Tags
-        uses: github/super-linter/slim@v5.0.0
+        if: ${{ steps.filter.outputs.terraform_workspace_services == 'true' }}
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -90,7 +157,8 @@ jobs:
           FILTER_REGEX_INCLUDE: "./templates/workspace_services/.*/user_resources/.*"
 
       - name: Shared Services Tags
-        uses: github/super-linter/slim@v5.0.0
+        if: ${{ steps.filter.outputs.terraform_shared_services == 'true' }}
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main

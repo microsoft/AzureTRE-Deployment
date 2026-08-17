@@ -6,7 +6,7 @@ name: Deploy Azure TRE (branch)
 # Note that the branch must be in the main repo as secrets are not passed
 # to workflows run from forks
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   workflow_dispatch:
     inputs:
       e2eTestsCustomSelector:
@@ -17,7 +17,7 @@ on:  # yamllint disable-line rule:truthy
       environment:
         description: The environment to run this workflow in
         type: environment
-        default: Dev
+        default: CICD
         required: true
       e2eProcesses:
         description: The number of E2E processes/tests running in parallel
@@ -29,14 +29,19 @@ on:  # yamllint disable-line rule:truthy
 # We should NOT cancel in progress runs as that can destabilize the environment.
 concurrency: "${{ github.workflow }}-${{ github.ref }}"
 
+permissions:
+  contents: read
+
 jobs:
   prepare-not-main:
     name: Preparation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     if: |
       github.ref != 'refs/heads/main'
     outputs:
       refid: ${{ steps.run-id.outputs.refid }}
+    permissions:
+      contents: read
     steps:
       - id: run-id
         name: Get run id
@@ -59,10 +64,10 @@ jobs:
     needs: [prepare-not-main]
     uses: ./.github/workflows/deploy_tre_reusable.yml
     permissions:
+      id-token: write
       checks: write
       contents: read
       pull-requests: write
-      id-token: write
     with:
       ciGitRef: ${{ github.ref }}
       prHeadSha: ${{ github.sha }}
@@ -71,11 +76,11 @@ jobs:
       E2E_TESTS_NUMBER_PROCESSES: ${{ fromJSON(github.event.inputs.e2eProcesses) }}
       DEVCONTAINER_TAG: ${{ needs.prepare-not-main.outputs.refid }}
     secrets:
-      AAD_TENANT_ID: ${{ secrets.AAD_TENANT_ID }}
-      ACR_NAME: ${{ format('tre{0}', needs.prepare-not-main.outputs.refid) }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AAD_TENANT_ID: ${{ secrets.AAD_TENANT_ID }}
+      ACR_NAME: ${{ format('tre{0}', needs.prepare-not-main.outputs.refid) }}
       API_CLIENT_ID: ${{ secrets.API_CLIENT_ID }}
       API_CLIENT_SECRET: ${{ secrets.API_CLIENT_SECRET }}
       APPLICATION_ADMIN_CLIENT_ID: ${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}
@@ -83,6 +88,9 @@ jobs:
       MGMT_RESOURCE_GROUP_NAME: ${{ format('rg-tre{0}-mgmt', needs.prepare-not-main.outputs.refid) }}
       MGMT_STORAGE_ACCOUNT_NAME: ${{ format('tre{0}mgmt', needs.prepare-not-main.outputs.refid) }}
       SWAGGER_UI_CLIENT_ID: ${{ secrets.SWAGGER_UI_CLIENT_ID }}
+      TEST_APP_ID: ${{ secrets.TEST_APP_ID }}
+      TEST_WORKSPACE_APP_ID: ${{ secrets.TEST_WORKSPACE_APP_ID }}
+      TEST_WORKSPACE_APP_SECRET: ${{ secrets.TEST_WORKSPACE_APP_SECRET }}
       TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
       TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
       TRE_ID: ${{ format('tre{0}', needs.prepare-not-main.outputs.refid) }}
