@@ -77,6 +77,12 @@ on: # yamllint disable-line rule:truthy
       TRE_ID:
         description: ""
         required: true
+      TEST_ACCOUNT_CLIENT_ID: # Used by Makefile to register bundles
+        description: Client ID for test automation account used for unattended bundle registration
+        required: true
+      TEST_ACCOUNT_CLIENT_SECRET: # Used by Makefile to register bundles
+        description: Client secret for test automation account used for unattended bundle registration
+        required: true
       CI_CACHE_ACR_NAME:
         description: ""
         required: false
@@ -565,6 +571,8 @@ jobs:
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
           TRE_ID: ${{ secrets.TRE_ID }}
+          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
+          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           LOCATION: ${{ vars.LOCATION }}
           BUNDLE_TYPE: ${{ matrix.BUNDLE_TYPE }}
 
@@ -629,6 +637,8 @@ jobs:
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
           TRE_ID: ${{ secrets.TRE_ID }}
+          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
+          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           LOCATION: ${{ vars.LOCATION }}
           BUNDLE_TYPE: ${{ matrix.BUNDLE_TYPE }}
 
@@ -683,6 +693,8 @@ jobs:
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
           TRE_ID: ${{ secrets.TRE_ID }}
+          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
+          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           LOCATION: ${{ vars.LOCATION }}
           BUNDLE_TYPE: ${{ matrix.BUNDLE_TYPE }}
           WORKSPACE_SERVICE_NAME: ${{ matrix.WORKSPACE_SERVICE_NAME }}
@@ -714,6 +726,8 @@ jobs:
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
           TRE_ID: ${{ secrets.TRE_ID }}
+          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
+          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           LOCATION: ${{ vars.LOCATION }}
 
       - name: State Store Migrations
@@ -729,6 +743,8 @@ jobs:
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
           TRE_ID: ${{ secrets.TRE_ID }}
+          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
+          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           LOCATION: ${{ vars.LOCATION }}
           TERRAFORM_STATE_CONTAINER_NAME: ${{ vars.TERRAFORM_STATE_CONTAINER_NAME }}
           MGMT_RESOURCE_GROUP_NAME: ${{ secrets.MGMT_RESOURCE_GROUP_NAME }}
@@ -760,6 +776,8 @@ jobs:
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
           TRE_ID: ${{ secrets.TRE_ID }}
+          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
+          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           LOCATION: ${{ vars.LOCATION }}
           TERRAFORM_STATE_CONTAINER_NAME: ${{ vars.TERRAFORM_STATE_CONTAINER_NAME }}
           MGMT_RESOURCE_GROUP_NAME: ${{ secrets.MGMT_RESOURCE_GROUP_NAME }}

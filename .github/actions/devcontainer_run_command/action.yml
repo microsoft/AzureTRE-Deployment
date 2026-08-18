@@ -30,6 +30,12 @@ inputs:
   TRE_ID:
     description: "The TRE Id."
     required: false
+  TEST_ACCOUNT_CLIENT_ID: # Used by Makefile to register bundles
+    description: "The Test Automation Account Client Id used to interact with the API."
+    required: false
+  TEST_ACCOUNT_CLIENT_SECRET: # Used by Makefile to register bundles
+    description: "The Test Automation Account Client Secret used to interact with the API."
+    required: false
   TERRAFORM_STATE_CONTAINER_NAME:
     description: "The name of the container to store the Terraform state."
     required: false
@@ -270,6 +276,8 @@ runs:
           -e API_CLIENT_ID="${{ inputs.API_CLIENT_ID }}" \
           -e AAD_TENANT_ID="${{ inputs.AAD_TENANT_ID }}" \
           -e TRE_ID="${{ inputs.TRE_ID }}" \
+          -e TEST_ACCOUNT_CLIENT_ID="${{ inputs.TEST_ACCOUNT_CLIENT_ID }}" \
+          -e TEST_ACCOUNT_CLIENT_SECRET="${{ inputs.TEST_ACCOUNT_CLIENT_SECRET }}" \
           -e TF_VAR_tre_id="${{ inputs.TRE_ID }}" \
           -e TRE_URL="${{ env.TRE_URL }}" \
           -e IS_API_SECURED=${{ inputs.IS_API_SECURED }} \
