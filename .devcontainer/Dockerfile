@@ -32,9 +32,6 @@ ARG DOCKER_GROUP_ID
 COPY .devcontainer/scripts/docker-client.sh /tmp/
 RUN /tmp/docker-client.sh $USERNAME
 
-COPY .devcontainer/corp-root-ca.crt /usr/local/share/ca-certificates/corp-root-ca.crt
-RUN update-ca-certificates
-
 # Install Docker
 ARG DOCKER_CE_VERSION="5:29.1.3-1~debian.12~bookworm"
 ARG DOCKER_CE_CLI_VERSION="5:29.1.3-1~debian.12~bookworm"
@@ -82,7 +79,6 @@ RUN curl -L --fail -o /usr/local/bin/yq "https://github.com/mikefarah/yq/release
     && chmod +x /usr/local/bin/yq
 
 ARG PAJV_VERSION="1.2.0"
-RUN npm config set cafile /etc/ssl/certs/ca-certificates.crt
 RUN npm install -g pajv@${PAJV_VERSION}
 
 # Install git - required for terraform's git modules
