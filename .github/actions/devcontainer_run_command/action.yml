@@ -181,7 +181,7 @@ runs:
         echo "AZURE_ENVIRONMENT=$azure_env" >> $GITHUB_ENV
 
     - name: Azure Login
-      uses: azure/login@v2
+      uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
       if: contains(inputs.COMMAND, 'make bootstrap') != true
       with:
         client-id: ${{ inputs.AZURE_CLIENT_ID }}

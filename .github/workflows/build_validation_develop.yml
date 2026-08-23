@@ -19,14 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           # Full git history is needed to get a proper list of
           # changed files within `super-linter`
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_version: "1.14.3"
       - name: Terraform format check
@@ -44,7 +44,7 @@ jobs:
         # the slim image is 2GB smaller and we don't use the extra stuff
         # Moved this after the Terraform checks above due something similar to this issue:
         # https://github.com/github/super-linter/issues/2433
-        uses: github/super-linter/slim@v5.0.0
+        uses: github/super-linter/slim@45fc0d88288beee4701c62761281edfee85655d7 # v5.0.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -59,7 +59,7 @@ jobs:
           VALIDATE_DOCKERFILE_HADOLINT: true
 
       - name: Workspace Tags
-        uses: github/super-linter/slim@v5.0.0
+        uses: github/super-linter/slim@45fc0d88288beee4701c62761281edfee85655d7 # v5.0.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -69,7 +69,7 @@ jobs:
           FILTER_REGEX_INCLUDE: "./templates/workspaces/.*"
 
       - name: Workspace Services Tags
-        uses: github/super-linter/slim@v5.0.0
+        uses: github/super-linter/slim@45fc0d88288beee4701c62761281edfee85655d7 # v5.0.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -80,7 +80,7 @@ jobs:
           FILTER_REGEX_EXCLUDE: ".*user_resource.*"
 
       - name: User Resources Tags
-        uses: github/super-linter/slim@v5.0.0
+        uses: github/super-linter/slim@45fc0d88288beee4701c62761281edfee85655d7 # v5.0.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -90,7 +90,7 @@ jobs:
           FILTER_REGEX_INCLUDE: "./templates/workspace_services/.*/user_resources/.*"
 
       - name: Shared Services Tags
-        uses: github/super-linter/slim@v5.0.0
+        uses: github/super-linter/slim@45fc0d88288beee4701c62761281edfee85655d7 # v5.0.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
