@@ -14,6 +14,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      pull-requests: read # For checking PRs
+      actions: read # For checking workflow runs
     environment: Dev
     timeout-minutes: 30
     steps:
