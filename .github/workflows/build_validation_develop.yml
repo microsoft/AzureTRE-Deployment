@@ -14,6 +14,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build_devcontainer:
+    name: Build devcontainer
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          filters: |
+            devcontainer:
+              - '.devcontainer/**'
+              - '.github/workflows/build_validation_develop.yml'
+
+      - name: Build deployment devcontainer
+        if: ${{ steps.filter.outputs.devcontainer == 'true' }}
+        run: |
+          docker build --build-arg INTERACTIVE=true \
+            --tag azuretre-deployment:validation \
+            --file .devcontainer/Dockerfile .
+
+      - name: Verify installed release and tools
+        if: ${{ steps.filter.outputs.devcontainer == 'true' }}
+        run: |
+          expected_version=$(grep -oP '(?<="UPSTREAM_REPO_VERSION": ")[^"]*' .devcontainer/devcontainer.json)
+          docker run --rm --network none \
+            --env EXPECTED_VERSION="${expected_version}" \
+            --entrypoint /bin/bash azuretre-deployment:validation -c '
+              set -euo pipefail
+              test "$(cat "${AZURETRE_HOME}/version.txt")" = "${EXPECTED_VERSION}"
+              test "$(cat "${AZURETRE_HOME}/repository.txt")" = "microsoft/AzureTRE"
+              test -f "${AZURETRE_HOME}/config.sample.yaml"
+              tre --help > /dev/null
+              porter version
+            '
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
