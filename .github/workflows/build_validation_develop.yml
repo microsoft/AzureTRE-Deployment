@@ -17,6 +17,9 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -25,6 +28,20 @@ jobs:
           # changed files within `super-linter`
           fetch-depth: 0
           persist-credentials: false
+
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          filters: |
+            ci_cleanup:
+              - '.github/scripts/clean_ci_validation_envs.sh'
+              - '.github/tests/**'
+              - '.github/workflows/build_validation_develop.yml'
+              - '.github/workflows/clean_validation_envs.yml'
+
+      - name: Test CI environment cleanup
+        if: ${{ steps.filter.outputs.ci_cleanup == 'true' }}
+        run: python3 -m unittest discover -s .github/tests -v
 
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
