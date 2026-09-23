@@ -10,6 +10,11 @@ THIS_MAKEFILE_DIR := $(dir $(THIS_MAKEFILE_FULLPATH))
 
 include $(AZURETRE_HOME)/Makefile
 
+help: ## 💬 Custom help command that displays both the repository-specific and AzureTRE help for existing make commands.
+	@grep -E '^[^#][a-zA-Z_-]+:.*?## .*$$' Makefile | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
+	@echo "AzureTRE Makefile Commands"
+	@grep -E '^[^#][a-zA-Z_-]+:.*?## .*$$' $(firstword $(AZURETRE_HOME)/Makefile) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
+
 # Add your make commands down here
 
 # This is a sample make command to build user resource templates that are in this repo, versus the AzureTRE core repo
