@@ -14,21 +14,80 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build_devcontainer:
+    name: Build devcontainer
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          filters: |
+            devcontainer:
+              - '.devcontainer/**'
+              - '.github/workflows/build_validation_develop.yml'
+
+      - name: Build deployment devcontainer
+        if: ${{ steps.filter.outputs.devcontainer == 'true' }}
+        run: |
+          docker build --build-arg INTERACTIVE=true \
+            --tag azuretre-deployment:validation \
+            --file .devcontainer/Dockerfile .
+
+      - name: Verify installed release and tools
+        if: ${{ steps.filter.outputs.devcontainer == 'true' }}
+        run: |
+          expected_version=$(grep -oP '(?<="UPSTREAM_REPO_VERSION": ")[^"]*' .devcontainer/devcontainer.json)
+          docker run --rm --network none \
+            --env EXPECTED_VERSION="${expected_version}" \
+            --entrypoint /bin/bash azuretre-deployment:validation -c '
+              set -euo pipefail
+              test "$(cat "${AZURETRE_HOME}/version.txt")" = "${EXPECTED_VERSION}"
+              test "$(cat "${AZURETRE_HOME}/repository.txt")" = "microsoft/AzureTRE"
+              test -f "${AZURETRE_HOME}/config.sample.yaml"
+              tre --help > /dev/null
+              porter version
+            '
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           # Full git history is needed to get a proper list of
           # changed files within `super-linter`
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
         with:
-          terraform_version: "1.9.8"
+          filters: |
+            ci_cleanup:
+              - '.github/scripts/clean_ci_validation_envs.sh'
+              - '.github/tests/**'
+              - '.github/workflows/build_validation_develop.yml'
+              - '.github/workflows/clean_validation_envs.yml'
+
+      - name: Test CI environment cleanup
+        if: ${{ steps.filter.outputs.ci_cleanup == 'true' }}
+        run: python3 -m unittest discover -s .github/tests -v
+
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: "1.14.3"
       - name: Terraform format check
         run: terraform fmt -check -recursive
 
@@ -44,7 +103,7 @@ jobs:
         # the slim image is 2GB smaller and we don't use the extra stuff
         # Moved this after the Terraform checks above due something similar to this issue:
         # https://github.com/github/super-linter/issues/2433
-        uses: github/super-linter/slim@v5.0.0
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -59,7 +118,7 @@ jobs:
           VALIDATE_DOCKERFILE_HADOLINT: true
 
       - name: Workspace Tags
-        uses: github/super-linter/slim@v5.0.0
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -69,7 +128,7 @@ jobs:
           FILTER_REGEX_INCLUDE: "./templates/workspaces/.*"
 
       - name: Workspace Services Tags
-        uses: github/super-linter/slim@v5.0.0
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -80,7 +139,7 @@ jobs:
           FILTER_REGEX_EXCLUDE: ".*user_resource.*"
 
       - name: User Resources Tags
-        uses: github/super-linter/slim@v5.0.0
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
@@ -90,7 +149,7 @@ jobs:
           FILTER_REGEX_INCLUDE: "./templates/workspace_services/.*/user_resources/.*"
 
       - name: Shared Services Tags
-        uses: github/super-linter/slim@v5.0.0
+        uses: super-linter/super-linter/slim@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main

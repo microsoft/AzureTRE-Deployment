@@ -29,10 +29,6 @@ on:
         description: The name of the workspace service to register user resources for
         type: string
         required: false
-      prRef:
-        description: The git ref to checkout
-        type: string
-        required: false
 
 jobs:
   deploy_management:
@@ -41,6 +37,7 @@ jobs:
     permissions:
       checks: write
       contents: read
+      id-token: write
     environment: ${{ inputs.environmentName || 'CICD'}}
     steps:
       - name: Show inputs
@@ -50,7 +47,6 @@ jobs:
           echo "prRHeadSha  : ${{ github.sha }}"
           echo "ciGitRef    : ${{ github.ref }}"
           echo "environment : ${{ inputs.environmentName || 'CICD'}}"
-          echo "prRef       : ${{ inputs.prRef }}"
           echo AAD_TENANT_ID: ${{ secrets.AAD_TENANT_ID }}
           echo ACR_NAME: ${{ secrets.ACR_NAME }}
           echo API_CLIENT_ID: ${{ secrets.API_CLIENT_ID }}
@@ -88,31 +84,29 @@ jobs:
           if [ "${{ secrets.TRE_ID }}" == '' ]; then
             echo "Missing secret: TRE_ID" && exit 1
           fi
-          if [ "${{ secrets.AZURE_CREDENTIALS }}" == '' ]; then
-            echo "Missing secret: AZURE_CREDENTIALS" && exit 1
+          if [ "${{ secrets.AZURE_CLIENT_ID }}" == '' ]; then
+            echo "Missing secret: AZURE_CLIENT_ID" && exit 1
           fi
 
-          bundle_name="${{ inputs.bundle_name }}"
-          bundle_type="${{ inputs.bundle_type }}"
-          workspace_service_name="${{ inputs.workspace_service_name }}"
-
           # if bundle_name is not set, exit with error
-          if [ -z "${bundle_name}" ]; then
+          if [ -z "${{ inputs.bundle_name }}" ]; then
             echo "Missing input: bundle_name" && exit 1
           fi
 
-          if [ -z "${bundle_type}" ]; then
+          # if bundle_type is not set, exit with error
+          if [ -z "${{ inputs.bundle_type }}" ]; then
             echo "Missing input: bundle_type" && exit 1
           fi
 
-          if [ $bundle_type = "user_resource" ]; then
-            if [ -z "${workspace_service_name}" ]; then
+          # if bundle_type is user_resource, then workspace_service_name is required, if not set, exit with error
+          if [ "${{ inputs.bundle_type }}" = "user_resource" ]; then
+            if [ -z "${{ inputs.workspace_service_name }}" ]; then
                echo "Missing input: workspace_service_name" && exit 1
             fi
           fi
       - name: Report check status start
         if: github.sha != ''
-        uses: LouisBrunner/checks-action@v2.0.0
+        uses: LouisBrunner/checks-action@6b626ffbad7cc56fd58627f774b9067e6118af23 # v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           sha: ${{ github.sha }}
@@ -121,20 +115,22 @@ jobs:
           details_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
           # if the following values are missing (i.e. not triggered via comment workflow)
           # then the default checkout will apply
-          ref: ${{ inputs.prRef }}
+          ref: ${{ github.ref }}
 
       - name: Set up Docker BuildKit
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           environment: ${{ (vars.AZURE_ENVIRONMENT != '' && vars.AZURE_ENVIRONMENT) || 'AzureCloud' }}
 
       - name: ACR Login
@@ -173,10 +169,12 @@ jobs:
           COMMAND: "make bootstrap mgmt-deploy"
           DEVCONTAINER_TAG: latest
           CI_CACHE_ACR_NAME: ${{ secrets.ACR_NAME}}
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
           TRE_ID: ${{ secrets.TRE_ID }}
-          LOCATION: "uksouth"
+          LOCATION: ${{ vars.LOCATION }}
           ACR_NAME: ${{ secrets.ACR_NAME }}
           TERRAFORM_STATE_CONTAINER_NAME: ${{ vars.TERRAFORM_STATE_CONTAINER_NAME }}
           MGMT_RESOURCE_GROUP_NAME: ${{ secrets.MGMT_RESOURCE_GROUP_NAME }}
@@ -227,46 +225,25 @@ jobs:
       checks: write
       contents: read
       pull-requests: write
+      id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Register Bundle
         uses: ./.github/actions/devcontainer_run_command
         with:
-          COMMAND: |
-            echo "Starting bundle registration"
-            bundle_name="${{ inputs.bundle_name }}"
-            bundle_type="${{ inputs.bundle_type }}"
-            workspace_service_name="${{ inputs.workspace_service_name }}"
-
-            if [ $bundle_type = "workspace" ]; then
-              echo "Registering workspace bundle $bundle_name of type $bundle_type"
-              make workspace_bundle BUNDLE="${bundle_name}"
-            fi
-
-            if [ $bundle_type = "workspace_service" ]; then
-              echo "Registering workspace service bundle $bundle_name of type $bundle_type"
-              make workspace_service_bundle BUNDLE="${bundle_name}" WORKSPACE_SERVICE="${workspace_service_name}"
-            fi
-
-            if [ $bundle_type = "shared_service" ]; then
-              echo "Registering shared service bundle $bundle_name of type $bundle_type"
-              make shared_service_bundle BUNDLE="${bundle_name}"
-            fi
-
-            if [ $bundle_type = "user_resource" ]; then
-              echo "Registering user resource bundle $bundle_name of type $bundle_type into workspace service $workspace_service_name"
-              make user_resource_bundle BUNDLE="${bundle_name}" WORKSPACE_SERVICE="${workspace_service_name}"
-            fi
-
-            echo "Finished bundle registration"
-          DEVCONTAINER_TAG: ${{ needs.prepare-not-main.outputs.refid }}
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          COMMAND: "make bundle BUNDLE=${{ inputs.bundle_name }} BUNDLE_TYPE=${{ inputs.bundle_type }} WORKSPACE_SERVICE=${{ inputs.workspace_service_name }}"
+          DEVCONTAINER_TAG: 'latest'
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT }}
           CI_CACHE_ACR_NAME: ${{ secrets.ACR_NAME}}
           ACR_NAME: ${{ secrets.ACR_NAME }}
           API_CLIENT_ID: "${{ secrets.API_CLIENT_ID }}"
           AAD_TENANT_ID: "${{ secrets.AAD_TENANT_ID }}"
+          TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
+          TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
           TRE_ID: ${{ secrets.TRE_ID }}
           LOCATION: ${{ vars.LOCATION }}

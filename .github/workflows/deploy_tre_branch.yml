@@ -62,6 +62,7 @@ jobs:
       checks: write
       contents: read
       pull-requests: write
+      id-token: write
     with:
       ciGitRef: ${{ github.ref }}
       prHeadSha: ${{ github.sha }}
@@ -72,7 +73,9 @@ jobs:
     secrets:
       AAD_TENANT_ID: ${{ secrets.AAD_TENANT_ID }}
       ACR_NAME: ${{ format('tre{0}', needs.prepare-not-main.outputs.refid) }}
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       API_CLIENT_ID: ${{ secrets.API_CLIENT_ID }}
       API_CLIENT_SECRET: ${{ secrets.API_CLIENT_SECRET }}
       APPLICATION_ADMIN_CLIENT_ID: ${{ secrets.APPLICATION_ADMIN_CLIENT_ID }}
@@ -81,4 +84,9 @@ jobs:
       MGMT_STORAGE_ACCOUNT_NAME: ${{ format('tre{0}mgmt', needs.prepare-not-main.outputs.refid) }}
       SWAGGER_UI_CLIENT_ID: ${{ secrets.SWAGGER_UI_CLIENT_ID }}
       TRE_ID: ${{ format('tre{0}', needs.prepare-not-main.outputs.refid) }}
+      TEST_ACCOUNT_CLIENT_ID: "${{ secrets.TEST_ACCOUNT_CLIENT_ID }}"
+      TEST_ACCOUNT_CLIENT_SECRET: "${{ secrets.TEST_ACCOUNT_CLIENT_SECRET }}"
       CI_CACHE_ACR_NAME: ${{ secrets.ACR_NAME }}
+      ENCRYPTION_KV_NAME: ${{ format('tre{0}mgmt', needs.prepare-not-main.outputs.refid) }}
+      EXTERNAL_KEY_STORE_ID: ${{ secrets.EXTERNAL_KEY_STORE_ID }}
+      PRIVATE_AGENT_SUBNET_ID: ${{ secrets.PRIVATE_AGENT_SUBNET_ID }}

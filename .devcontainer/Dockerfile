@@ -11,10 +11,10 @@ ARG INTERACTIVE="false"
 ARG USER_UID=1000
 ARG USERNAME=vscode
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
 # make user ID match user ID on host machine
 RUN usermod --uid $USER_UID $USERNAME
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Set env for tracking that we're running in a devcontainer
 ENV DEVCONTAINER=true
@@ -24,7 +24,7 @@ ARG NODE_VERSION="lts/*"
 RUN su $USERNAME -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"
 
 # Install terraform
-ARG TERRAFORM_VERSION="1.9.8"
+ARG TERRAFORM_VERSION="1.14.3"
 COPY .devcontainer/scripts/terraform.sh /tmp/
 RUN bash /tmp/terraform.sh "${TERRAFORM_VERSION}" /usr/bin
 
@@ -33,10 +33,10 @@ COPY .devcontainer/scripts/docker-client.sh /tmp/
 RUN /tmp/docker-client.sh $USERNAME
 
 # Install Docker
-ARG DOCKER_CE_VERSION="5:27.4.1-1~debian.12~bookworm"
-ARG DOCKER_CE_CLI_VERSION="5:27.4.1-1~debian.12~bookworm"
-ARG DOCKER_COMPOSE_PLUGIN_VERSION="2.32.1-1~debian.12~bookworm"
-ARG DOCKER_CONTAINERD_VERSION="1.7.24-1"
+ARG DOCKER_CE_VERSION="5:29.1.3-1~debian.12~bookworm"
+ARG DOCKER_CE_CLI_VERSION="5:29.1.3-1~debian.12~bookworm"
+ARG DOCKER_CONTAINERD_VERSION="2.2.1-1~debian.12~bookworm"
+ARG DOCKER_COMPOSE_PLUGIN_VERSION="5.0.0-1~debian.12~bookworm"
 RUN apt-get update && apt-get install -y ca-certificates curl gnupg lsb-release --no-install-recommends \
     && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
     && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
@@ -54,10 +54,10 @@ RUN if [ "${INTERACTIVE}" = "true" ]; then \
 
 # Install Porter, updates should be propagated to the RP.
 ARG PORTER_HOME_V1=/home/$USERNAME/.porter/
-ARG PORTER_VERSION=v1.2.1
-ARG PORTER_TERRAFORM_MIXIN_VERSION=v1.0.5
-ARG PORTER_AZ_MIXIN_VERSION=v1.0.4
-ARG PORTER_AZURE_PLUGIN_VERSION=v1.2.3
+ARG PORTER_VERSION=v1.4.0
+ARG PORTER_TERRAFORM_MIXIN_VERSION=v1.0.8
+ARG PORTER_AZ_MIXIN_VERSION=v1.0.7
+ARG PORTER_AZURE_PLUGIN_VERSION=v1.2.4
 COPY .devcontainer/scripts/porter-v1.sh /tmp/
 RUN export PORTER_VERSION=${PORTER_VERSION} \
     PORTER_TERRAFORM_MIXIN_VERSION=${PORTER_TERRAFORM_MIXIN_VERSION} \
@@ -69,12 +69,12 @@ RUN export PORTER_VERSION=${PORTER_VERSION} \
 ENV PATH=${PORTER_HOME_V1}:$PATH
 
 # Install azure-cli
-ARG AZURE_CLI_VERSION=2.67.0-1~bookworm
+ARG AZURE_CLI_VERSION=2.81.0-1~bookworm
 COPY .devcontainer/scripts/azure-cli.sh /tmp/
 RUN export AZURE_CLI_VERSION=${AZURE_CLI_VERSION} \
     && /tmp/azure-cli.sh
 
-ARG YQ_VERSION="v4.44.6"
+ARG YQ_VERSION="v4.49.2"
 RUN curl -L --fail -o /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" \
     && chmod +x /usr/local/bin/yq
 
@@ -98,15 +98,22 @@ RUN echo "export HISTFILE=$HOME/commandhistory/.bash_history" >> "$HOME/.bashrc"
 COPY ./.devcontainer/scripts/gh.sh /tmp/
 RUN if [ "${INTERACTIVE}" = "true" ]; then /tmp/gh.sh; fi
 
+# Build x86-64 docker images by default
+ENV DOCKER_DEFAULT_PLATFORM=amd64
+
 # Install AzureTRE OSS
-ARG UPSTREAM_REPO_URL
+ARG UPSTREAM_REPO
 ARG UPSTREAM_REPO_VERSION
+ARG GITHUB_TOKEN
 ENV AZURETRE_HOME=/home/$USERNAME/AzureTRE
 COPY .devcontainer/scripts/install-azure-tre-oss.sh .devcontainer/devcontainer.json /tmp/
 # hadolint ignore=DL3004
-RUN upstream_repo_url_in_json=$(grep -oP '(?<="UPSTREAM_REPO_URL": ")[^"]*' /tmp/devcontainer.json) \
+RUN upstream_repo_in_json=$(grep -oP '(?<="UPSTREAM_REPO": ")[^"]*' /tmp/devcontainer.json) \
     && upstream_repo_version_in_json=$(grep -oP '(?<="UPSTREAM_REPO_VERSION": ")[^"]*' /tmp/devcontainer.json) \
-    && /tmp/install-azure-tre-oss.sh "${UPSTREAM_REPO_URL:-$upstream_repo_url_in_json}" "${UPSTREAM_REPO_VERSION:-$upstream_repo_version_in_json}" "${AZURETRE_HOME}"  \
+    && GITHUB_TOKEN=$(grep -oP '(?<="GITHUB_TOKEN": ")[^"]*' /tmp/devcontainer.json) \
+    && /tmp/install-azure-tre-oss.sh "${UPSTREAM_REPO:-$upstream_repo_in_json}" \
+                                      "${UPSTREAM_REPO_VERSION:-$upstream_repo_version_in_json}" \
+                                      "${AZURETRE_HOME}" "${GITHUB_TOKEN}" \
     && sudo chown -R $USERNAME ${AZURETRE_HOME}
 
 # Install tre-cli
