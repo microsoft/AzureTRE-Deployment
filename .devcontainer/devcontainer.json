@@ -58,7 +58,8 @@
         "davidanson.vscode-markdownlint",
         "editorconfig.editorconfig",
         "mikestead.dotenv",
-        "timonwong.shellcheck"
+        "timonwong.shellcheck",
+        "ms-azuretools.vscode-containers"
       ]
     }
   },
