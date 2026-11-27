@@ -52,6 +52,9 @@ jobs:
               test "$(cat "${AZURETRE_HOME}/version.txt")" = "${EXPECTED_VERSION}"
               test "$(cat "${AZURETRE_HOME}/repository.txt")" = "microsoft/AzureTRE"
               test -f "${AZURETRE_HOME}/config.sample.yaml"
+              test -f "${AZURETRE_HOME}/core/terraform/mgmt_storage_private_endpoint.sh"
+              dig -v
+              tflint --version
               tre --help > /dev/null
               porter version
             '

@@ -21,6 +21,20 @@ To work with devcontainers you will need:
 - [Visual Studio Code](https://code.visualstudio.com)
 - [Remote containers extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 
+### Upgrading to AzureTRE v0.30.0
+
+Before redeploying an existing TRE that uses legacy Airlock storage, set `tre.enable_legacy_airlock` to `true` in `config.yaml`.
+For GitHub Actions deployments, the equivalent variable is `ENABLE_LEGACY_AIRLOCK` and its default is `true`.
+The new sample sets `enable_legacy_airlock` to `false` for new deployments.
+Setting it to `false` on an existing TRE deletes the legacy storage accounts and their data on the next core deployment.
+Migrate all workspaces to Airlock v2 before disabling legacy storage.
+
+Keep your existing `config.yaml` when rebuilding the container.
+The new sample enables workspace user management, automatic Entra group creation and automatic consent.
+Review these permissions before adopting the new sample settings.
+
+Review the other breaking changes before upgrading individual services. [AzureTRE v0.30.0 release notes](https://github.com/microsoft/AzureTRE/releases/tag/v0.30.0)
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
